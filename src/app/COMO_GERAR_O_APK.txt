@@ -1,0 +1,61 @@
+SKULL.INK – COMO TRANSFORMAR EM APK (GRÁTIS, SEM LOJA)
+=======================================================
+
+O que tem nesta pasta:
+  index.html               -> o jogo
+  manifest.webmanifest     -> configuração do app (nome, ícone, tela cheia, deitado)
+  sw.js                    -> faz o jogo funcionar sem internet depois da 1ª vez
+  icon-192.png / icon-512.png / icon-maskable-512.png -> ícones
+  .nojekyll                -> arquivo vazio necessário pro GitHub Pages (não apague)
+
+
+PASSO 1 – Colocar o jogo online (grátis, GitHub Pages)
+------------------------------------------------------
+1. Crie uma conta grátis em github.com
+2. Clique em "+" > "New repository".
+   NOME DO REPOSITÓRIO: exatamente  SEUUSUARIO.github.io
+   (troque SEUUSUARIO pelo seu nome de usuário do GitHub). Deixe "Public".
+3. No repositório, clique em "Add file" > "Upload files" e arraste TODOS os arquivos desta pasta
+   (inclusive o .nojekyll – se ele não aparecer, ative "mostrar arquivos ocultos" no computador).
+   Clique em "Commit changes".
+4. Vá em Settings > Pages > "Deploy from a branch" > branch "main" / pasta "/ (root)" > Save.
+5. Espere 1–2 minutos e abra:  https://SEUUSUARIO.github.io
+   O jogo deve abrir. Teste no celular também.
+
+
+PASSO 2 – Gerar o APK (grátis, PWABuilder)
+------------------------------------------
+1. Entre em  https://www.pwabuilder.com
+2. Cole o endereço https://SEUUSUARIO.github.io e clique em "Start".
+3. Clique em "Package For Stores" e escolha "Android".
+4. Na janela, deixe as opções padrão (nome Skull.ink, cor preta) e clique em "Generate"
+   ou "Download Package".
+5. Vai baixar um .zip. Dentro dele tem:
+     - um arquivo .apk        -> ESSE é o app pra mandar pros amigos
+     - signing.keystore e signing-key-info.txt -> GUARDE BEM, servem pra futuras versões
+     - assetlinks.json        -> veja o passo 3
+
+
+PASSO 3 – Tirar a barra de endereço de dentro do app (recomendado)
+------------------------------------------------------------------
+1. No seu repositório do GitHub, clique em "Add file" > "Create new file".
+2. No nome do arquivo digite:  .well-known/assetlinks.json
+3. Cole dentro o conteúdo do assetlinks.json que veio no zip do PWABuilder e salve.
+   Pronto: o app passa a abrir em tela cheia, sem cara de navegador.
+
+
+PASSO 4 – Mandar pros amigos
+----------------------------
+- Envie o .apk pelo WhatsApp, Telegram, Drive ou Discord.
+- No Android do amigo: abrir o arquivo > permitir "Instalar apps desconhecidos" > Instalar.
+- O app precisa de internet só na primeira vez que abre; depois funciona offline.
+- iPhone não instala .apk. Amigos com iPhone: abrir o endereço no Safari >
+  Compartilhar > "Adicionar à Tela de Início" (fica igual a um app).
+
+
+ATUALIZAR O JOGO DEPOIS
+-----------------------
+Não precisa gerar outro APK! Só troque o index.html no GitHub pelo novo
+(e mude a versão "skullink-v1" para "skullink-v2" no sw.js).
+Na próxima vez que os amigos abrirem o app com internet, ele atualiza sozinho.
+O save de cada um continua no aparelho.
