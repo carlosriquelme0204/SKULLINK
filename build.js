@@ -1,8 +1,8 @@
 // Gera as três versões do jogo a partir de src/skullink.html.
-//   node build.js                     -> dist/skullink_cidade.html e dist/skullink_dev.html
-//   node build.js --app               -> também gera dist/app/ (só quando o dono pedir pra atualizar o app)
+//   node build.js                     -> skullink_cidade.html e skullink_dev.html (na raiz)
+//   node build.js --app               -> também gera app/ (só quando o dono pedir pra atualizar o app)
 //   node build.js --version X         -> usa X como versão do app (padrão: data/hora de Brasília)
-//   node build.js --app --deploy <pasta> -> também copia dist/app/ pra <pasta> (o repositório do GitHub Pages)
+//   node build.js --app --deploy <pasta> -> também copia app/ pra <pasta> (o repositório do GitHub Pages)
 //
 // Marcações no código-fonte:
 //   @@[dev] ... @@[end]               só na versão DEV
@@ -12,7 +12,7 @@
 // Uma marcação sozinha numa linha some junto com a linha.
 const fs = require('fs'), path = require('path');
 
-const ROOT = __dirname, SRC = path.join(ROOT, 'src'), DIST = path.join(ROOT, 'dist');
+const ROOT = __dirname, SRC = path.join(ROOT, 'src'), DIST = ROOT;
 const arg = n => { const i = process.argv.indexOf(n); return i > 0 ? process.argv[i + 1] : null; };
 
 function nowVersion() {
@@ -58,7 +58,7 @@ if (app) {
     else fs.copyFileSync(from, to);
   }
 }
-console.log(app ? 'app versão ' + version + ' + cidade + dev -> dist/' : 'cidade + dev -> dist/ (app não mexido)');
+console.log(app ? 'app versão ' + version + ' + cidade + dev atualizados' : 'cidade + dev atualizados (app não mexido)');
 
 const deploy = arg('--deploy');
 if (deploy) {

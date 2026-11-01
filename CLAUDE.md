@@ -11,10 +11,10 @@ O dono do projeto fala português: textos do jogo, comentários e respostas em p
 
 - `src/skullink.html`: **o único código do jogo. Toda mudança é feita aqui.**
 - `src/app/`: arquivos fixos do app (`sw.js`, manifest, ícones, instruções do APK).
-- `build.js`: gera `dist/` com as três versões. Nunca edite `dist/` à mão.
-  - `dist/skullink_cidade.html`: versão normal para o navegador.
-  - `dist/skullink_dev.html`: tudo liberado, ult infinita, atalhos Shift+número, seletor de missão. Usa outro save.
-  - `dist/app/`: PWA publicado no repositório `carlosriquelme0204/carlosriquelme0204.github.io` (GitHub Pages).
+- `build.js`: gera as três versões. Nunca edite os arquivos gerados à mão.
+  - `skullink_cidade.html`: versão normal para o navegador.
+  - `skullink_dev.html`: tudo liberado, ult infinita, atalhos Shift+número, seletor de missão. Usa outro save.
+  - `app/`: PWA publicado no repositório `carlosriquelme0204/carlosriquelme0204.github.io` (GitHub Pages).
 - `tools/screenshot.js`: abre uma versão no Chromium headless, inicia o jogo, tira um print e lista erros de JS.
 
 ## Marcações de versão em `src/`
@@ -31,8 +31,8 @@ Os saves ficam separados pelas chaves `skullink_save_v1` e `skullink_DEV_save_v1
 ## Fluxo de trabalho
 
 1. Editar `src/skullink.html`. O arquivo tem cerca de 4.200 linhas: use Grep para achar o trecho, não leia o arquivo inteiro.
-2. `node build.js` (gera só cidade e dev). **O app (`dist/app/`) só é atualizado quando o dono pedir:** aí use `node build.js --app`.
+2. `node build.js` (gera só cidade e dev). **O app (`app/`) só é atualizado quando o dono pedir:** aí use `node build.js --app`.
 3. `node tools/screenshot.js cidade` (e `dev`/`app` se a mudança mexer neles). Olhar o print e os erros.
-4. Commit em `src/` + `dist/` juntos.
+4. Commit de `src/` junto com os arquivos gerados, direto no `main`, e push (o dono baixa os arquivos do `main`).
 5. Publicar o app, **só quando o dono pedir**: `node build.js --app --deploy ../carlosriquelme0204.github.io`, depois commit e push nesse repositório.
    O `sw.js` com versão nova faz o app instalado se atualizar sozinho.

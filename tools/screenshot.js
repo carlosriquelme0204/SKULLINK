@@ -7,7 +7,7 @@ const fs = require('fs'), os = require('os'), path = require('path');
 
 const which = process.argv[2] || 'cidade';
 const out = process.argv[3] || path.join(os.tmpdir(), `skullink_${which}.png`);
-const file = path.join(__dirname, '..', 'dist', which === 'app' ? 'app/index.html' : `skullink_${which}.html`);
+const file = path.join(__dirname, '..', which === 'app' ? 'app/index.html' : `skullink_${which}.html`);
 
 const cache = path.join(os.tmpdir(), 'skullink-three');
 const three = path.join(cache, 'package', 'build', 'three.min.js');
