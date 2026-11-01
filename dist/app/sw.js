@@ -1,6 +1,6 @@
-// Skull.ink – service worker. Versão: 2026.10.30-0253
+// Skull.ink – service worker. Versão: 2026.10.31-2220
 // Página sempre buscada na internet primeiro (sem cache do navegador); só usa a cópia guardada se estiver offline.
-const CACHE='skullink-2026.10.30-0253';
+const CACHE='skullink-2026.10.31-2220';
 const CORE=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./icon-maskable-512.png',
   'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>Promise.all(CORE.map(u=>c.add(new Request(u,{cache:'reload'})).catch(()=>{})))).then(()=>self.skipWaiting()));});
