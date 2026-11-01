@@ -1,7 +1,8 @@
 // Gera as três versões do jogo a partir de src/skullink.html.
-//   node build.js                     -> dist/skullink_cidade.html, dist/skullink_dev.html, dist/app/
+//   node build.js                     -> dist/skullink_cidade.html e dist/skullink_dev.html
+//   node build.js --app               -> também gera dist/app/ (só quando o dono pedir pra atualizar o app)
 //   node build.js --version X         -> usa X como versão do app (padrão: data/hora de Brasília)
-//   node build.js --deploy <pasta>    -> também copia dist/app/ pra <pasta> (o repositório do GitHub Pages)
+//   node build.js --app --deploy <pasta> -> também copia dist/app/ pra <pasta> (o repositório do GitHub Pages)
 //
 // Marcações no código-fonte:
 //   @@[dev] ... @@[end]               só na versão DEV
@@ -43,20 +44,25 @@ function preprocess(text, target, version) {
 
 const version = arg('--version') || nowVersion();
 const src = fs.readFileSync(path.join(SRC, 'skullink.html'), 'utf8');
-fs.rmSync(DIST, { recursive: true, force: true });
-fs.mkdirSync(path.join(DIST, 'app'), { recursive: true });
+const app = process.argv.includes('--app');
+fs.mkdirSync(DIST, { recursive: true });
 fs.writeFileSync(path.join(DIST, 'skullink_cidade.html'), preprocess(src, 'cidade', version));
 fs.writeFileSync(path.join(DIST, 'skullink_dev.html'), preprocess(src, 'dev', version));
-fs.writeFileSync(path.join(DIST, 'app', 'index.html'), preprocess(src, 'app', version));
-for (const f of fs.readdirSync(path.join(SRC, 'app'))) {
-  const from = path.join(SRC, 'app', f), to = path.join(DIST, 'app', f);
-  if (/\.(js|webmanifest|txt|html)$/.test(f)) fs.writeFileSync(to, preprocess(fs.readFileSync(from, 'utf8'), 'app', version));
-  else fs.copyFileSync(from, to);
+if (app) {
+  fs.rmSync(path.join(DIST, 'app'), { recursive: true, force: true });
+  fs.mkdirSync(path.join(DIST, 'app'), { recursive: true });
+  fs.writeFileSync(path.join(DIST, 'app', 'index.html'), preprocess(src, 'app', version));
+  for (const f of fs.readdirSync(path.join(SRC, 'app'))) {
+    const from = path.join(SRC, 'app', f), to = path.join(DIST, 'app', f);
+    if (/\.(js|webmanifest|txt|html)$/.test(f)) fs.writeFileSync(to, preprocess(fs.readFileSync(from, 'utf8'), 'app', version));
+    else fs.copyFileSync(from, to);
+  }
 }
-console.log('versão', version, '-> dist/');
+console.log(app ? 'app versão ' + version + ' + cidade + dev -> dist/' : 'cidade + dev -> dist/ (app não mexido)');
 
 const deploy = arg('--deploy');
 if (deploy) {
+  if (!app) throw new Error('--deploy precisa de --app');
   for (const f of fs.readdirSync(path.join(DIST, 'app'))) fs.copyFileSync(path.join(DIST, 'app', f), path.join(deploy, f));
   console.log('app copiado pra', deploy);
 }

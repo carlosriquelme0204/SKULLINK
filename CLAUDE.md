@@ -31,8 +31,8 @@ Os saves ficam separados pelas chaves `skullink_save_v1` e `skullink_DEV_save_v1
 ## Fluxo de trabalho
 
 1. Editar `src/skullink.html`. O arquivo tem cerca de 4.200 linhas: use Grep para achar o trecho, não leia o arquivo inteiro.
-2. `node build.js`
+2. `node build.js` (gera só cidade e dev). **O app (`dist/app/`) só é atualizado quando o dono pedir:** aí use `node build.js --app`.
 3. `node tools/screenshot.js cidade` (e `dev`/`app` se a mudança mexer neles). Olhar o print e os erros.
 4. Commit em `src/` + `dist/` juntos.
-5. Publicar o app, **só quando o dono pedir**: `node build.js --deploy ../carlosriquelme0204.github.io`, depois commit e push nesse repositório.
+5. Publicar o app, **só quando o dono pedir**: `node build.js --app --deploy ../carlosriquelme0204.github.io`, depois commit e push nesse repositório.
    O `sw.js` com versão nova faz o app instalado se atualizar sozinho.

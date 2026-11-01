@@ -597,7 +597,7 @@
     <div id="saveBox"></div>
     <button id="updBtn">UPDATE</button>
     <button id="sioStart">importar / exportar save</button>
-    <div id="appVer" style="margin-top:8px;font-size:11px;opacity:.55">versão 2026.10.31-2220</div>
+    <div id="appVer" style="margin-top:8px;font-size:11px;opacity:.55">versão 2026.10.30-0253</div>
   </div>
   <div id="how">PC: WASD · Shift corre · Espaço pula · Q chute · E chute forte · F ultimate · mouse gira a câmera &nbsp;|&nbsp; Celular: joystick na esquerda, botões na direita</div>
   <div class="grain"></div>
@@ -1686,26 +1686,6 @@ const glamSleeves=arms.map(A=>{const g=new THREE.Group();const a=add(C(0.17,0.16
   const fr=[];for(let i=0;i<10;i++){const an=i/10*Math.PI*2;const f=add(new THREE.IcosahedronGeometry(0.075,0),GLAM.white,Math.sin(an)*0.19,-0.38,Math.cos(an)*0.19,A.el);f.scale.set(1,0.7,1);fr.push(f);}g.parts=[a,b,...fr];return g;});
 const glamPlat=legs.map(L=>{const sh=L.ankle.children[0];const g=new THREE.Group();sh.add(g);add(new THREE.BoxGeometry(0.52,0.16,0.5),GLAM.plat,0,-0.2,0.2,g);add(new THREE.BoxGeometry(0.34,0.42,0.22),GLAM.plat,0,-0.3,-0.26,g);
   add(new THREE.BoxGeometry(0.46,0.5,0.5),GLAM.pink,0,0.4,-0.08,g);add(new THREE.TorusGeometry(0.26,0.03,4,14),GLAM.white,0,0.66,-0.08,g).rotation.x=Math.PI/2;return g;});
-// chefão de ouro: sobretudo longo aberto, gola alta com corrente, dois cintos e boina
-const DON={coat:lp(0x111113,{emissive:0x040405,side:THREE.DoubleSide}),gold:lp(0xffc83a,{emissive:0x3a2600,metalness:0.6,roughness:0.35}),
-  orange:lp(0xff7a1a,{emissive:0x301400}),green:lp(0x2ad06a,{emissive:0x08301a})};
-const donSkirt=new THREE.Group();hips.add(donSkirt);
-add(new THREE.CylinderGeometry(0.56,0.82,1.1,14,1,true,0.5,Math.PI*2-1.0),DON.coat,0,-0.5,0,donSkirt);
-add(C(0.475,0.475,0.07,12),DON.orange,0,-0.03,0,donSkirt);add(C(0.475,0.475,0.07,12),DON.green,0,-0.11,0,donSkirt);
-const donTop=new THREE.Group();spine.add(donTop);
-add(new THREE.CylinderGeometry(0.5,0.56,0.86,14,1,true,0.45,Math.PI*2-0.9),DON.coat,0,0.34,0,donTop);
-for(const sd of[-1,1])for(const y of[0.62,0.4,0.18])add(new THREE.IcosahedronGeometry(0.05,0),DON.gold,sd*Math.sin(0.45)*0.53,y,Math.cos(0.45)*0.53,donTop);
-const donCollar=new THREE.Group();chest.add(donCollar);
-add(new THREE.CylinderGeometry(0.5,0.4,0.55,14,1,true,0.6,Math.PI*2-1.2),DON.coat,0,0.3,-0.02,donCollar);
-const chainPts=[];for(let i=0;i<=10;i++){const k=i/10;chainPts.push(new THREE.Vector3(-0.42+k*0.1,0.48-k*0.62+Math.sin(k*Math.PI)*0.08,0.3+k*0.16+Math.sin(k*Math.PI)*0.1));}
-chainPts.forEach((v,i)=>{const l=add(new THREE.TorusGeometry(0.06,0.024,4,8),DON.gold,v.x,v.y,v.z,donCollar);l.rotation.set(i%2?Math.PI/2:0,0.4,0.3);});
-const donHat=new THREE.Group();donHat.position.set(0,0.38,0);head.add(donHat);
-add(new THREE.SphereGeometry(1.0,16,8,0,Math.PI*2,0,Math.PI/2),DON.coat,0,0,0,donHat).scale.set(1.08,0.8,1.1);
-add(new THREE.SphereGeometry(1.0,16,8),DON.coat,0,0.7,0.08,donHat).scale.set(1.2,0.3,1.25);
-const donBand=add(new THREE.TorusGeometry(1.0,0.04,4,28),DON.gold,0,0.02,0,donHat);donBand.rotation.x=Math.PI/2;donBand.scale.set(1.08,1.1,1);
-const brim=add(new THREE.CylinderGeometry(0.62,0.62,0.05,12,1,false,-Math.PI/2,Math.PI),DON.coat,0,-0.02,0.6,donHat);brim.rotation.x=0.2;brim.scale.z=0.85;
-const donBadge=new THREE.Group();donBadge.position.set(0,0.3,1.05);donBadge.rotation.x=-0.4;donHat.add(donBadge);
-add(C(0.11,0.11,0.05,14),DON.gold,-0.12,0,0,donBadge).rotation.x=Math.PI/2;add(new THREE.BoxGeometry(0.18,0.18,0.05),DON.gold,0.14,0,0,donBadge);
 // ---- cabelos (Salão da Kika) ----
 const HAIRS={none:{name:'PADRÃO',price:0,desc:'Os espinhos de metal de sempre.'},
   bald:{name:'CARECA',price:100,rar:'comum',desc:'Lisinho, brilhando. Sem espinho nenhum.'},
@@ -1762,8 +1742,8 @@ function spikeOut(par,dir,len,r,m){const v=dir.clone().normalize(),g=new THREE.G
     add(new THREE.IcosahedronGeometry(0.42+r2()*0.18,0),HM1,v.x*1.35,0.62+v.y*1.35,-0.6+v.z*1.35,af);}
   for(const k in HG){HG[k].visible=false;HG[k].traverse(o=>{if(o.isMesh)o.castShadow=true;});}})();
 function applyHair(id){const h=id||hairEq;HM1.color.setHex(hairC1);HM2.color.setHex(hairC2);
-  for(const k in HG)HG[k].visible=(k===h);const o=OUTFITS[outfit]||{};if(o.robot||o.don)for(const k in HG)HG[k].visible=false;
-  let rd=false;try{rd=riding;}catch(e){}const spk=h==='none'&&!o.robot&&!o.witch&&!o.don&&!rd;spikes.forEach(x=>x.visible=spk);}
+  for(const k in HG)HG[k].visible=(k===h);const o=OUTFITS[outfit]||{};if(o.robot)for(const k in HG)HG[k].visible=false;
+  let rd=false;try{rd=riding;}catch(e){}const spk=h==='none'&&!o.robot&&!o.witch&&!rd;spikes.forEach(x=>x.visible=spk);}
 function hairSway(){const h=HG[hairEq];if(!h||!h.visible||!h.tails)return;const mv=moveAmt>0.2;h.tails.forEach((tl,i)=>{tl.rotation.x=Math.sin(t*(mv?9:2.5)+i)*(mv?0.35:0.08)+(mv?0.25:0);tl.rotation.z=Math.sin(t*(mv?7:2)+i*2)*(mv?0.15:0.05);});}
 // ---- guarda-roupa ----
 const OUTFITS={
@@ -1786,9 +1766,7 @@ const OUTFITS={
   o8:{name:'GÓTICA DE RENDA',price:200,rar:'epico',desc:'Corset preto com cadarço, renda preta do colo até os braços, sainha curtinha, meia arrastão, bota plataforma e lacinho na cabeça.',
     shirt:0x121214,slu:0xe9e2d8,slf:0xe9e2d8,pants:0xe9e2d8,shoe:0x121214,toe:0x121214,sole:0x0c0c0e,hood:false,tribal:false,puffy:false,boots:false,goth:true},
   o9:{name:'PRINCESA GLITTER',price:300,rar:'lendario',desc:'Regata social rosa com gola de frufru branca, mangas de glitter com babado na ponta, saia curta branca e bota plataforma de salto rosa.',
-    shirt:0xff5fb0,slu:0xff5fb0,slf:0xe9e2d8,pants:0xe9e2d8,shoe:0xff5fb0,toe:0xff5fb0,sole:0xff8ac8,hood:false,tribal:false,puffy:false,boots:false,glam:true},
-  o10:{name:'CHEFÃO DE OURO',price:300,rar:'lendario',desc:'Sobretudo preto longo e aberto com botões dourados, gola alta com corrente grossa de ouro, blusa cinza, cinto laranja e verde, calça social, sapato social e boina com detalhes dourados.',
-    shirt:0x8a8e96,slu:0x111113,slf:0x111113,pants:0x141416,shoe:0x0c0c0e,toe:0x0c0c0e,sole:0x0c0c0e,hood:false,tribal:false,puffy:false,boots:false,don:true}
+    shirt:0xff5fb0,slu:0xff5fb0,slf:0xe9e2d8,pants:0xe9e2d8,shoe:0xff5fb0,toe:0xff5fb0,sole:0xff8ac8,hood:false,tribal:false,puffy:false,boots:false,glam:true}
 };
 let outfit='def',wardOwn=['def'];
 function applyOutfit(id){const o=OUTFITS[id]||OUTFITS.def;
@@ -1802,10 +1780,10 @@ function applyOutfit(id){const o=OUTFITS[id]||OUTFITS.def;
   robo.visible=!!o.robot;roboBody.visible=!!o.robot;roboLimbs.forEach(g=>g.visible=!!o.robot);spikes.forEach(x=>x.visible=!o.robot);
   witch.visible=witchTop.visible=witchHat.visible=!!o.witch;witchFur.forEach(g=>g.visible=!!o.witch);
   school.visible=schoolTop.visible=!!o.school;socks.forEach(g=>g.visible=!!o.school);schoolSleeves.forEach(g=>g.visible=!!o.school);
-  if(o.witch||o.don)spikes.forEach(x=>x.visible=false);if(o.school)SOLE.emissive.setHex(0x0a5060);if(o.school)P.emissive.setHex(0x1c1915);
+  if(o.witch)spikes.forEach(x=>x.visible=false);if(o.school)SOLE.emissive.setHex(0x0a5060);if(o.school)P.emissive.setHex(0x1c1915);
   const G8=!!o.goth,G9=!!o.glam;gothLegs.forEach(g=>g.parts.forEach(x=>x.visible=G8));gothSkirt.visible=gothTop.visible=gothLace.visible=gothBow.visible=G8;gothSleeves.forEach(g=>g.parts.forEach(x=>x.visible=G8));gothPlat.forEach(g=>g.visible=G8);
-  glamSkirt.visible=glamCollar.visible=G9;donSkirt.visible=donTop.visible=donCollar.visible=donHat.visible=!!o.don;glamSleeves.forEach(g=>g.parts.forEach(x=>x.visible=G9));glamPlat.forEach(g=>g.visible=G9);
-  pockets.forEach(x=>x.visible=!(o.school||G8||G9||o.witch||o.don));
+  glamSkirt.visible=glamCollar.visible=G9;glamSleeves.forEach(g=>g.parts.forEach(x=>x.visible=G9));glamPlat.forEach(g=>g.visible=G9);
+  pockets.forEach(x=>x.visible=!(o.school||G8||G9||o.witch));
   hood.visible=o.hood;tribal.visible=o.tribal;if(typeof applyHair==='function')applyHair();slashes.forEach(x=>x.visible=o.tribal);puffy.visible=o.puffy;puffArms.forEach(g=>g.visible=o.puffy);boots.forEach(g=>g.visible=o.boots);}
 applyOutfit('def');
 // movimento secundário: capuz balança, cabeça atrasa um pouco no impacto
@@ -3127,7 +3105,7 @@ $('rubiMini').innerHTML=$('rubiBig').innerHTML.replace('id="dots"','id="dots2"')
 function rubiSay(t){speakShop(t,1.45,320);const e=$('rubiTalk');e.textContent=t;e.classList.remove('pop');void e.offsetWidth;e.classList.add('pop');}
 function renderCloth(){
   $('cCoins').textContent='☠ '+coins;
-  $('rack').innerHTML=['o1','o2','o6','o3','o7','o4','o8','o5','o9','o10'].map(id=>{const o=OUTFITS[id],own=wardOwn.includes(id),eq=outfit===id;
+  $('rack').innerHTML=['o1','o2','o6','o3','o7','o4','o8','o5','o9'].map(id=>{const o=OUTFITS[id],own=wardOwn.includes(id),eq=outfit===id;
     return `<button class="item rar-${o.rar}${selO===id?' sel':''}" data-id="${id}"><span class="rtag">${RARN[o.rar]}</span>${outfitSVG(id)}<span class="nm">${o.name}</span><span class="tag">${own?(eq?'VESTINDO':'SUA'):'☠ '+o.price}</span>${own?'<span class="own">✓</span>':''}</button>`;}).join('');
   if(!selO){$('cDetail').innerHTML='<h3>ESCOLHA UMA ROUPA</h3><p>Toque numa peça da arara pra ver na caveira antes de comprar.</p>';return;}
   const o=OUTFITS[selO],own=wardOwn.includes(selO),eq=outfit===selO,can=coins>=o.price;
@@ -3156,7 +3134,7 @@ function closeClothUI(){if(!clothOpen)return;clothOpen=false;$('cshop').classLis
 $('cClose').addEventListener('click',()=>closeShop(true));
 addEventListener('resize',pvSize);
 // ---- aba VISUAL do inventário ----
-function renderWard(){$('wardGrid').innerHTML=['def','o1','o2','o6','o3','o7','o4','o8','o5','o9','o10'].map(id=>{const o=OUTFITS[id],own=wardOwn.includes(id),eq=outfit===id;
+function renderWard(){$('wardGrid').innerHTML=['def','o1','o2','o6','o3','o7','o4','o8','o5','o9'].map(id=>{const o=OUTFITS[id],own=wardOwn.includes(id),eq=outfit===id;
   return `<button class="wcard rar-${o.rar||'base'} ${eq?'eq':own?'':'lock'}" data-id="${id}">${o.rar?`<span class="rtag">${RARN[o.rar]}</span>`:''}${outfitSVG(id)}<b>${o.name}</b><small>${eq?'VESTINDO':own?'toque pra vestir':'compre no Brechó da Rubi'}</small></button>`;}).join('');}
 $('wardGrid').addEventListener('click',e=>{const b=e.target.closest('.wcard');if(!b)return;const id=b.dataset.id;if(!wardOwn.includes(id))return;outfit=id;applyOutfit(id);writeSave(false);renderWard();});
 function invTab(n){document.querySelectorAll('#inv .tab').forEach(t=>t.classList.toggle('on',t.dataset.tab===n));$('tabSkills').style.display=n==='skills'?'':'none';$('tabVisual').style.display=n==='visual'?'':'none';$('tabWeapons').style.display=n==='weapons'?'':'none';if(n==='visual')renderWard();if(n==='weapons')renderWeapons();}
@@ -4171,7 +4149,7 @@ addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updat
 <div id="updToast" style="display:none;position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:90;background:#ffd23a;color:#0a0a0a;font:14px 'Black Ops One',Impact,sans-serif;padding:.5em 1em;box-shadow:4px 4px 0 #c4161c;cursor:pointer">NOVA VERSÃO BAIXADA · TOQUE PRA ATUALIZAR</div>
 <script>
 // atualização automática do app: procura versão nova ao abrir e ao voltar pro app
-const APP_VERSION='2026.10.31-2220';
+const APP_VERSION='2026.10.30-0253';
 if('serviceWorker' in navigator){
   let reloading=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloading)return;
