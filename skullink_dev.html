@@ -848,6 +848,7 @@
     <h3>UPDATE</h3>
     <div class="updList">
       <section><h4>🆕 ESTA VERSÃO</h4><ul>
+        <li><b>Pet Shop:</b> o papagaio virou <b>ARARA</b> azul de bico preto e olhos com círculo amarelo. Pets novos: <b>PANDA</b> (épico, faixa preta: quando você toma dano, ele dá um chute de karatê em quem bateu) e <b>ONÇA PINTADA</b> (lendário: você corre mais rápido e ela dá botes fortes nos bandidos).</li>
         <li><b>Pet Shop da Nina:</b> nova loja (pata verde no mapa) com pets que te seguem pela cidade e dão poderes: <b>Coelho</b> (comum, +1 pulo no ar), <b>Gato</b> (raro, pula nos bandidos e arranha) e <b>Papagaio</b> (épico, a esquiva no ar vira voo longo sem perder altura).</li>
         <li><b>Roupa nova no Brechó:</b> JAPONÊS OJOJ (lendário): sobretudo preto longo com botões dourados, corrente de ouro na gola, cintos laranja e verde e boina com detalhes dourados.</li>
         <li><b>Novo golpe: CORDA DO CÉU</b> (Skills › Golpes). No ar ou correndo na parede, segure o botão direito (ou G / botão CORDA no celular) pra se balançar; soltou, é lançado pra frente.</li>
@@ -2490,7 +2491,7 @@ function clearEvent(){if(!ev)return;if(ev.boss&&!ev.secret)bossEffectsClear(ev.b
 function hurtPlayer(dmg,fx,fz){if(!playerDead&&state!=='ult'&&state!=='dead'&&state!=='bcine'&&t>=invulnT)SFX.hurt();
   if(playerDead||state==='ult'||state==='dead'||state==='bcine')return;
   if(t<invulnT){spark(player.position.x,player.position.y+2,player.position.z,3,0x9a9aa0,3);return;}
-  php-=dmg*enemyMul()*(1-resist());lastHurt=t;shake=Math.max(shake,0.3);squash=-0.2;pushX+=fx*6;pushZ+=fz*6;
+  php-=dmg*enemyMul()*(1-resist());lastHurt=t;if(petEq==='panda')pandaCounter();shake=Math.max(shake,0.3);squash=-0.2;pushX+=fx*6;pushZ+=fz*6;
   const h=$('hurt');h.classList.remove('go');void h.offsetWidth;h.classList.add('go');
   spark(player.position.x,player.position.y+2.4,player.position.z,6,0xc4161c,6);
   if(php<=0)die();
@@ -3000,7 +3001,7 @@ function comboTxt(n){popTxt('comboTxt',n);}
 function combatExtra(){
   dodgeCD-=dt;dodgeWin-=dt;
   if(dodgeT>0){dodgeT-=dt;if(Math.random()<dt*30)spark(player.position.x,player.position.y+1.5,player.position.z,1,0x9a9aa0,1);}
-  if(dodgeReq&&state==='normal'&&dodgeCD<=0&&!atk&&!slam&&dashT<=0&&!onGround&&petEq==='parrot'){ // papagaio: esquiva no ar vira voo
+  if(dodgeReq&&state==='normal'&&dodgeCD<=0&&!atk&&!slam&&dashT<=0&&!onGround&&petEq==='parrot'){ // arara: esquiva no ar vira voo
     const f=faceLock&&moveAmt>0.3?moveYaw:player.rotation.y;SFX.dodge();pushX=Math.sin(f)*48;pushZ=Math.cos(f)*48;curSpeed=0;vel.y=0;flyT=0.6;flip=0;
     dodgeCD=0.6;invulnT=t+0.6;dance=0;emote=null;puff(5,2);dodgeReq=false;}
   if(dodgeReq&&state==='normal'&&dodgeCD<=0&&!atk&&!slam&&dashT<=0){
@@ -3911,8 +3912,10 @@ function drawSalon(tr,W2){for(const c of chunks.values())if(c.salon){const p=tr(
 const PETS={
   bunny:{name:'COELHO',price:500,rar:'comum',pow:'PULO EXTRA',desc:'Orelhudo e elétrico. Com ele do seu lado, você ganha +1 pulo no ar.'},
   cat:{name:'GATO',price:750,rar:'raro',pow:'ARRANHÃO',desc:'Fica de olho na briga: pula nos bandidos perto de você e arranha sem dó.'},
-  parrot:{name:'PAPAGAIO',price:1000,rar:'epico',pow:'VOO',desc:'Esquiva no ar vira voo: a caveira estica os braços pra frente e voa longe, sem perder altura.'}};
-const PET_ORDER=['bunny','cat','parrot'];
+  parrot:{name:'ARARA',price:1000,rar:'epico',pow:'VOO',desc:'Esquiva no ar vira voo: a caveira estica os braços pra frente e voa longe, sem perder altura.'},
+  panda:{name:'PANDA',price:1000,rar:'epico',pow:'KARATÊ',desc:'Gordo e faixa preta. Quando você toma dano, ele parte pra cima de quem bateu com um chute de karatê que empurra longe.'},
+  jaguar:{name:'ONÇA PINTADA',price:1500,rar:'lendario',pow:'FÚRIA DA SELVA',desc:'A rainha da cidade: você corre mais rápido com ela do lado, e ela dá botes fortes nos bandidos perto de você.'}};
+const PET_ORDER=['bunny','cat','parrot','panda','jaguar'];
 let petOwn=[],petEq=null,petObj=null,flyT=0,petGY=0,petCD=0,petPounce=null;const petV=new THREE.Vector3();
 function maxAirJumps(){return 1+skills.lv.jump+(petEq==='bunny'?1:0);}
 function petMats(){if(PMATS)return PMATS;
@@ -3943,14 +3946,35 @@ function petModel(id){const g=new THREE.Group(),u=g.userData;const M=(c,o)=>lp(c
     u.tail=new THREE.Group();u.tail.position.set(0,0.6,-0.45);g.add(u.tail);
     const pts=[];for(let i=0;i<=8;i++){const k=i/8;pts.push(new THREE.Vector3(0,k*0.6,-Math.sin(k*1.6)*0.25));}
     a(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),12,0.05,5,false),B,0,0,0,u.tail);}
-  else if(id==='parrot'){const R2=M(0xe0242a,{emissive:0x300406}),Bl=M(0x2a6aff,{emissive:0x0a1440}),Yl=M(0xffd23a,{emissive:0x403000}),Wt=M(0xf2ede4);
-    a(IC(0.24,1),R2,0,0.5,0).scale.set(0.9,1.3,0.95);
-    const hd=new THREE.Group();hd.position.set(0,0.9,0.06);g.add(hd);a(IC(0.19,1),R2,0,0,0,hd);
-    for(const sd of[-1,1]){a(new THREE.SphereGeometry(0.07,8,6),Wt,sd*0.13,0.02,0.09,hd).scale.set(0.5,1,1);a(new THREE.SphereGeometry(0.03,6,4),ink,sd*0.16,0.03,0.11,hd);}
-    const bk=a(new THREE.ConeGeometry(0.08,0.2,5),M(0x2a2a2e),0,-0.06,0.2,hd);bk.rotation.x=Math.PI/2+0.7;
-    u.wings=[-1,1].map(sd=>{const w=new THREE.Group();w.position.set(sd*0.2,0.65,0);g.add(w);const f=a(new THREE.BoxGeometry(0.42,0.06,0.3),Bl,sd*0.21,0,0,w);a(new THREE.BoxGeometry(0.2,0.065,0.22),Yl,sd*0.12,0.005,0.02,w);f.rotation.z=0;return w;});
-    const tl=a(new THREE.BoxGeometry(0.12,0.5,0.05),Bl,0,0.2,-0.2);tl.rotation.x=-0.5;a(new THREE.BoxGeometry(0.08,0.3,0.04),Yl,0,0.08,-0.26).rotation.x=-0.5;
-    for(const sd of[-1,1])a(new THREE.BoxGeometry(0.05,0.12,0.08),M(0x2a2a2e),sd*0.08,0.12,0.02);}
+  else if(id==='parrot'){const Bl=M(0x1e4fd8,{emissive:0x061440}),Bd=M(0x16379a,{emissive:0x040c30}),Yl=M(0xffd23a,{emissive:0x403000}),Bk=M(0x0c0c0e);
+    a(IC(0.24,1),Bl,0,0.5,0).scale.set(0.9,1.3,0.95);
+    const hd=new THREE.Group();hd.position.set(0,0.9,0.06);g.add(hd);a(IC(0.19,1),Bl,0,0,0,hd);
+    for(const sd of[-1,1]){const rg=a(new THREE.TorusGeometry(0.045,0.022,5,12),Yl,sd*0.15,0.03,0.1,hd);rg.rotation.y=sd*0.95;a(new THREE.SphereGeometry(0.032,6,4),Bk,sd*0.152,0.03,0.1,hd);}
+    const bk=a(new THREE.ConeGeometry(0.1,0.24,5),Bk,0,-0.07,0.2,hd);bk.rotation.x=Math.PI/2+0.75;a(new THREE.BoxGeometry(0.12,0.03,0.05),Yl,0,-0.1,0.13,hd);
+    u.wings=[-1,1].map(sd=>{const w=new THREE.Group();w.position.set(sd*0.2,0.65,0);g.add(w);a(new THREE.BoxGeometry(0.42,0.06,0.3),Bl,sd*0.21,0,0,w);a(new THREE.BoxGeometry(0.2,0.065,0.22),Bd,sd*0.3,0.005,-0.02,w);return w;});
+    const tl=a(new THREE.BoxGeometry(0.12,0.55,0.05),Bd,0,0.2,-0.2);tl.rotation.x=-0.5;
+    for(const sd of[-1,1])a(new THREE.BoxGeometry(0.05,0.12,0.08),Bk,sd*0.08,0.12,0.02);}
+  else if(id==='panda'){const W=M(0xf2ede4,{emissive:0x1c1915}),K=M(0x111113),Bt=M(0xc4161c,{emissive:0x200304});
+    a(IC(0.55,1),W,0,0.62,0).scale.set(1.18,1.0,1.12);a(IC(0.4,1),W,0,0.55,0.22).scale.set(1.15,0.95,1);
+    a(C(0.68,0.68,0.12,12),Bt,0,0.55,0).scale.set(1,1,0.95);
+    a(IC(0.42,1),K,0,0.92,-0.05).scale.set(1.3,0.45,1.05);
+    for(const [x,z] of[[-0.36,0.25],[0.36,0.25],[-0.36,-0.3],[0.36,-0.3]])a(IC(0.2,1),K,x,0.18,z).scale.set(1,1.1,1.1);
+    for(const sd of[-1,1])a(IC(0.17,1),K,sd*0.62,0.72,0.2).scale.set(0.9,1.3,0.9);
+    const hd=new THREE.Group();hd.position.set(0,1.18,0.32);g.add(hd);a(IC(0.36,1),W,0,0,0,hd).scale.set(1.12,0.98,0.95);
+    for(const sd of[-1,1]){a(IC(0.12,1),K,sd*0.26,0.3,-0.05,hd);const pt=a(IC(0.1,1),K,sd*0.14,0.04,0.29,hd);pt.scale.set(1,1.35,0.5);pt.rotation.z=sd*0.5;a(new THREE.SphereGeometry(0.03,6,4),W,sd*0.14,0.07,0.34,hd);}
+    a(IC(0.05),K,0,-0.08,0.35,hd);
+    for(const sd of[-1,1])a(new THREE.BoxGeometry(0.06,0.18,0.03),Bt,sd*0.06,-0.1,-0.42).rotation.z=sd*0.4;}
+  else if(id==='jaguar'){const O=M(0xc98224,{emissive:0x1a0c02}),Cr=M(0xf2e2c0,{emissive:0x1c1610}),K=M(0x141008),Gr=new THREE.MeshBasicMaterial({color:0xb6ff3a});
+    a(IC(0.38,1),O,0,0.62,0).scale.set(0.9,0.8,1.65);a(IC(0.3,1),Cr,0,0.5,0.05).scale.set(0.85,0.6,1.5);
+    for(const [x,z] of[[-0.2,0.38],[0.2,0.38],[-0.2,-0.38],[0.2,-0.38]])a(C(0.08,0.1,0.5,5),O,x,0.24,z);
+    let sd2=7;const rn=()=>{sd2=(sd2*16807)%2147483647;return sd2/2147483647;};
+    for(let i=0;i<22;i++){const an=rn()*Math.PI*1.4-0.7+(i%2?Math.PI:0),zz=-0.5+rn()*1.0;const sp=a(IC(0.075),K,Math.sin(an)*0.36,0.62+Math.cos(an)*0.32,zz);sp.scale.set(1,1,0.5);sp.lookAt(0,0.62,zz);}
+    const hd=new THREE.Group();hd.position.set(0,0.92,0.62);g.add(hd);a(IC(0.27,1),O,0,0,0,hd).scale.set(1.15,0.95,1);a(IC(0.14,1),Cr,0,-0.08,0.2,hd).scale.set(1.2,0.8,0.8);
+    for(const sd of[-1,1]){a(new THREE.ConeGeometry(0.09,0.14,4),O,sd*0.17,0.24,-0.03,hd);a(new THREE.SphereGeometry(0.05,6,4),Gr,sd*0.11,0.06,0.22,hd).scale.set(1.2,1,0.5);a(IC(0.035),K,sd*0.2,0.12,0.05,hd);}
+    a(IC(0.04),K,0,-0.03,0.32,hd);
+    u.tail=new THREE.Group();u.tail.position.set(0,0.66,-0.6);g.add(u.tail);
+    const pts=[];for(let i=0;i<=8;i++){const k=i/8;pts.push(new THREE.Vector3(0,Math.sin(k*1.2)*0.35,-k*0.7));}
+    a(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),12,0.055,5,false),O,0,0,0,u.tail);for(let i=1;i<4;i++){const k=i/4;a(new THREE.TorusGeometry(0.06,0.02,4,8),K,0,Math.sin(k*1.2)*0.35,-k*0.7,u.tail);}}
   g.traverse(o=>{if(o.isMesh)o.castShadow=true;});return g;}
 function petAnim(g,id,mv,tt){const u=g.userData;
   if(u.ears)u.ears.forEach((e,i)=>{e.rotation.x=Math.sin(tt*(mv?14:3)+i)*(mv?0.35:0.1);});
@@ -3960,16 +3984,18 @@ function applyPet(){if(petObj){scene.remove(petObj);petObj=null;}petPounce=null;
   petObj=petModel(petEq);petObj.scale.setScalar(1.15);petObj.position.copy(player.position);scene.add(petObj);}
 function petTick(){if(!petObj)return;petObj.visible=started&&!shopOpen&&state!=='dead';if(!petObj.visible)return;
   const P=player.position,g=petObj,q=g.position,ry=player.rotation.y;petCD-=dt;
-  // gato: pula no bandido mais perto e arranha
-  if(petEq==='cat'){
-    if(!petPounce&&petCD<=0&&state==='normal'&&q.distanceTo(P)<6){const fs=foesNear(P,8).sort((a,b)=>a.l-b.l);if(fs.length){petPounce={n:fs[0].n,t:1};petCD=1.2;}}
+  // gato e onça: pulam no bandido mais perto; panda: chute de karatê em quem te bateu
+  {const hunt=petEq==='cat'||petEq==='jaguar';
+    if(hunt&&!petPounce&&petCD<=0&&state==='normal'&&q.distanceTo(P)<6){const fs=foesNear(P,8).sort((a,b)=>a.l-b.l);if(fs.length){petPounce={n:fs[0].n,t:1};petCD=petEq==='jaguar'?0.8:1.2;}}
     if(petPounce){const tq=petPounce.n.m.g.position,dx=tq.x-q.x,dz=tq.z-q.z,l=Math.hypot(dx,dz)||0.01;petPounce.t-=dt;
-      q.x+=dx/l*Math.min(l,26*dt);q.z+=dz/l*Math.min(l,26*dt);q.y=ease(q.y,tq.y+0.6+Math.sin(Math.min(1,l/4)*Math.PI)*0.8,14);g.rotation.y=Math.atan2(dx,dz);
-      if(l<1.1){const n=petPounce.n;if(n.hittable&&n.state!=='down'){hitNPC(n,10*(1+0.25*(lvl-1)),3,2,dx/l,dz/l);
-        for(let i=0;i<3;i++)spark(tq.x+(i-1)*0.25,tq.y+1.6-i*0.15,tq.z,3,0xc4161c,4);SFX.whoosh&&SFX.whoosh(false);}petPounce=null;}
+      const sp=petEq==='cat'?26:34;q.x+=dx/l*Math.min(l,sp*dt);q.z+=dz/l*Math.min(l,sp*dt);q.y=ease(q.y,tq.y+0.6+Math.sin(Math.min(1,l/4)*Math.PI)*0.8,14);if(petPounce.kick)g.rotation.y+=dt*24;else g.rotation.y=Math.atan2(dx,dz);
+      if(l<(petPounce.kick?1.7:1.1)){const n=petPounce.n,k=petPounce.kick?[24,16,5]:petEq==='jaguar'?[20,5,3]:[10,3,2];
+        if(n.hittable&&n.state!=='down'){hitNPC(n,k[0]*(1+0.25*(lvl-1)),k[1],k[2],dx/l,dz/l);
+          if(petPounce.kick){ringFx(tq.x,tq.y+0.3,tq.z,3,DM.ring,0.35);spark(tq.x,tq.y+1.8,tq.z,10,0xefece4,7);shake=Math.max(shake,0.3);comboTxt('KARATÊ DO PANDA');}
+          else for(let i=0;i<3;i++)spark(tq.x+(i-1)*0.25,tq.y+1.6-i*0.15,tq.z,3,0xc4161c,4);SFX.whoosh&&SFX.whoosh(false);}petPounce=null;}
       else if(petPounce.t<=0||!n0(petPounce.n))petPounce=null;
       petAnim(g,petEq,true,t);return;}}
-  // segue a caveira: atrás e do lado; papagaio voa na altura do ombro
+  // segue a caveira: atrás e do lado; arara voa na altura do ombro
   const fly=petEq==='parrot',sx=fly?-1.1:1.3,bz=fly?-0.4:-1.6;
   petV.set(P.x+Math.cos(ry)*sx+Math.sin(ry)*bz,P.y,P.z-Math.sin(ry)*sx+Math.cos(ry)*bz);
   if(q.distanceTo(petV)>18)q.copy(petV);
@@ -3979,6 +4005,7 @@ function petTick(){if(!petObj)return;petObj.visible=started&&!shopOpen&&state!==
   else{if(onGround)petGY=P.y;q.y=ease(q.y,petGY,10);if(petEq==='bunny'&&mv)q.y=petGY+Math.abs(Math.sin(t*9))*0.45;}
   if(l>0.1)g.rotation.y=Math.atan2(dx,dz);else g.rotation.y=ease(g.rotation.y,ry,6);
   petAnim(g,petEq,mv,t);}
+function pandaCounter(){if(!petObj||petEq!=='panda'||(petPounce&&petPounce.kick))return;const fs=foesNear(player.position,8).sort((a,b)=>a.l-b.l);if(fs.length)petPounce={n:fs[0].n,t:1.2,kick:true};}
 function n0(n){return ev&&ev.npcs.includes(n)&&n.state!=='down';}
 // ---- loja ----
 let nearPet=null,petOpen=false,selP=null,ptR=null,ptScene=null,ptCam=null,ptHold=null,ptShown=null,ptSpin=0,ptDrag=null;
@@ -3987,7 +4014,9 @@ function petShopUpdate(){const P=player.position;nearPet=null;
 function petSVG(id){const S={
   bunny:'<g stroke="#0a0a0a" stroke-width="3" stroke-linejoin="round"><path d="M42 50 L36 8 L52 12 L54 48Z M78 50 L84 8 L68 12 L66 48Z" fill="#f2ede4"/><path d="M42 40 L40 18 L48 20Z M78 40 L80 18 L72 20Z" fill="#ff8ac8" stroke-width="0"/><ellipse cx="60" cy="88" rx="30" ry="24" fill="#f2ede4"/><circle cx="60" cy="58" r="22" fill="#f2ede4"/></g><circle cx="52" cy="56" r="3.5"/><circle cx="68" cy="56" r="3.5"/><path d="M57 64 h6 l-3 4z" fill="#ff8ac8"/><path d="M44 74 Q60 84 76 74" stroke="#c4161c" stroke-width="5" fill="none"/>',
   cat:'<g stroke="#efece4" stroke-width="3" stroke-linejoin="round" fill="#16161a"><path d="M96 70 Q112 50 100 30" fill="none" stroke-width="7"/><ellipse cx="66" cy="88" rx="32" ry="20"/><path d="M34 52 L36 22 L52 38Z M86 52 L84 22 L68 38Z"/><circle cx="60" cy="56" r="24"/></g><ellipse cx="51" cy="54" rx="4" ry="6" fill="#b6ff3a"/><ellipse cx="69" cy="54" rx="4" ry="6" fill="#b6ff3a"/><path d="M57 64 h6 l-3 4z" fill="#ff8ac8"/><path d="M38 76 Q60 86 82 76" stroke="#c4161c" stroke-width="5" fill="none"/>',
-  parrot:'<g stroke="#0a0a0a" stroke-width="3" stroke-linejoin="round"><path d="M54 92 L44 116 L60 112 L66 94Z" fill="#2a6aff"/><ellipse cx="60" cy="72" rx="22" ry="30" fill="#e0242a"/><path d="M40 62 Q22 76 34 98 Q44 86 46 70Z M80 62 Q98 76 86 98 Q76 86 74 70Z" fill="#2a6aff"/><path d="M42 70 Q34 80 38 90 L46 74Z M78 70 Q86 80 82 90 L74 74Z" fill="#ffd23a" stroke-width="0"/><circle cx="60" cy="36" r="18" fill="#e0242a"/><path d="M66 38 Q80 40 74 54 Q70 46 62 46Z" fill="#2a2a2e"/></g><ellipse cx="54" cy="34" rx="5" ry="6" fill="#f2ede4"/><circle cx="55" cy="34" r="2.5"/>'};
+  parrot:'<g stroke="#0a0a0a" stroke-width="3" stroke-linejoin="round"><path d="M54 92 L44 116 L60 112 L66 94Z" fill="#16379a"/><ellipse cx="60" cy="72" rx="22" ry="30" fill="#1e4fd8"/><path d="M40 62 Q22 76 34 98 Q44 86 46 70Z M80 62 Q98 76 86 98 Q76 86 74 70Z" fill="#16379a"/><circle cx="60" cy="36" r="18" fill="#1e4fd8"/><path d="M66 38 Q82 40 74 56 Q70 46 62 46Z" fill="#0c0c0e"/></g><circle cx="53" cy="33" r="6" fill="#0c0c0e" stroke="#ffd23a" stroke-width="3.5"/><path d="M60 46 h8" stroke="#ffd23a" stroke-width="3"/>',
+  panda:'<g stroke="#0a0a0a" stroke-width="3"><circle cx="36" cy="30" r="10" fill="#111113"/><circle cx="84" cy="30" r="10" fill="#111113"/><ellipse cx="60" cy="88" rx="40" ry="28" fill="#f2ede4"/><path d="M22 80 Q20 100 30 108 L40 100Z M98 80 Q100 100 90 108 L80 100Z" fill="#111113"/><rect x="22" y="82" width="76" height="8" fill="#c4161c"/><circle cx="60" cy="50" r="26" fill="#f2ede4"/></g><ellipse cx="50" cy="48" rx="7" ry="9" fill="#111113" transform="rotate(25 50 48)"/><ellipse cx="70" cy="48" rx="7" ry="9" fill="#111113" transform="rotate(-25 70 48)"/><circle cx="51" cy="47" r="2.5" fill="#fff"/><circle cx="69" cy="47" r="2.5" fill="#fff"/><ellipse cx="60" cy="60" rx="4" ry="3"/>',
+  jaguar:'<g stroke="#0a0a0a" stroke-width="3" stroke-linejoin="round"><path d="M98 78 Q114 70 108 52" fill="none" stroke="#e0a030" stroke-width="7"/><ellipse cx="62" cy="86" rx="38" ry="20" fill="#e0a030"/><path d="M34 44 L36 24 L50 34Z M86 44 L84 24 L70 34Z" fill="#e0a030"/><circle cx="60" cy="52" r="24" fill="#e0a030"/><ellipse cx="60" cy="62" rx="12" ry="8" fill="#f2e2c0"/></g><g fill="#141008"><circle cx="40" cy="82" r="4"/><circle cx="56" cy="76" r="4"/><circle cx="72" cy="84" r="4"/><circle cx="86" cy="76" r="3.5"/><circle cx="48" cy="94" r="3.5"/><circle cx="64" cy="94" r="3.5"/><circle cx="44" cy="40" r="2.5"/><circle cx="76" cy="40" r="2.5"/></g><ellipse cx="51" cy="51" rx="4" ry="5" fill="#b6ff3a"/><ellipse cx="69" cy="51" rx="4" ry="5" fill="#b6ff3a"/><path d="M57 60 h6 l-3 4z"/>'};
   return `<svg viewBox="0 0 120 120">${S[id]}</svg>`;}
 function renderPetShop(){$('pCoins').textContent='☠ '+coins;
   $('pList').innerHTML=PET_ORDER.map(id=>{const p=PETS[id],own=petOwn.includes(id),eq=petEq===id;
@@ -3996,7 +4025,7 @@ function renderPetShop(){$('pCoins').textContent='☠ '+coins;
   $('pDet').innerHTML=`<h3>${p.name}</h3><span class="rtxt rar-${p.rar}">${RARN[p.rar]}</span><span class="pw">★ ${p.pow}</span><p>${p.desc}</p><button id="pBuy">${eq?'DEIXAR EM CASA':own?'LEVAR COMIGO':'COMPRAR · ☠ '+p.price}</button>`;
   $('pBuy').onclick=()=>{if(eq)petEq=null;else if(own)petEq=id;else if(coins>=p.price){coins-=p.price;updCoins();petOwn.push(id);petEq=id;SFX.coin();}
     else{$('pBuy').textContent=`FALTAM ☠ ${p.price-coins}`;return;}applyPet();writeSave(false);renderPetShop();};
-  if(ptShown!==id){if(ptHold.children[0])ptHold.remove(ptHold.children[0]);const m=petModel(id);m.scale.setScalar(1.7);m.position.y=0.35;ptHold.add(m);ptShown=id;}}
+  if(ptShown!==id){if(ptHold.children[0])ptHold.remove(ptHold.children[0]);const m=petModel(id);m.scale.setScalar(id==='panda'?1.3:1.7);m.position.y=0.35;ptHold.add(m);ptShown=id;}}
 $('pList').addEventListener('click',e=>{const b=e.target.closest('.pcard');if(!b)return;selP=b.dataset.id;renderPetShop();});
 function ptSize(){if(!ptR)return;const c=$('ptCanvas'),w=c.clientWidth||300,h=c.clientHeight||300;ptR.setSize(w,h,false);ptCam.aspect=w/h;ptCam.updateProjectionMatrix();}
 function ptLoop(){if(!petOpen)return;if(!ptDrag)ptSpin+=0.008;ptHold.rotation.y=ptSpin;const m=ptHold.children[0];if(m)petAnim(m,ptShown,false,performance.now()/1000);ptR.render(ptScene,ptCam);requestAnimationFrame(ptLoop);}
@@ -4141,7 +4170,7 @@ function loop(){
   const len=Math.min(1,Math.hypot(ix,iz));
   const moving=len>0.12;
   running=moving&&(keys.ShiftLeft||keys.ShiftRight||runToggle||Math.hypot(joy.x,joy.y)>0.95);
-  curSpeed=riding?ease(curSpeed,moving?(running?30:22)*Math.max(len,0.4):0,moving?1.6:2.6):ease(curSpeed,moving?(running?20:4.5*Math.max(len,0.5)):0,running?3.5:8);
+  curSpeed=riding?ease(curSpeed,moving?(running?30:22)*Math.max(len,0.4):0,moving?1.6:2.6):ease(curSpeed,moving?(running?(petEq==='jaguar'?25:20):4.5*Math.max(len,0.5)):0,running?3.5:8);
   const jumpPressed=!riding&&((keys.Space&&!prevSpace)||jumpReq);prevSpace=!!keys.Space;jumpReq=false;
   wallCD=Math.max(0,wallCD-dt);
   const P=player.position,sols=nearSolids(P.x,P.z);
