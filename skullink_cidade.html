@@ -838,6 +838,9 @@
     <h3>UPDATE</h3>
     <div class="updList">
       <section><h4>🆕 ESTA VERSÃO</h4><ul>
+        <li><b>Pet novo: CHARIGARTO</b> (lendário): dragãozinho laranja pançudo de asas enormes e rabo de fogo, que cospe fogo nos bandidos.</li>
+        <li><b>Pets repaginados:</b> todos andam, correm, respiram e mexem orelhas, asas e rabo. A <b>Onça Pintada</b> ganhou modelo novo e agora vê o bandido antes de você, derruba ele no chão e ataca até soltar (depois descansa um tempo). O Panda ficou com 2 pernas, e Panda e Onça ganharam tamanhos certos.</li>
+        <li><b>Balanceamento:</b> o dano dos pets agora cresce com o seu nível (não depende mais da arma). Lendários custam ☠ 2000.</li>
         <li><b>Pet Shop:</b> o papagaio virou <b>ARARA</b> azul de bico preto e olhos com círculo amarelo. Pets novos: <b>PANDA</b> (épico, faixa preta: quando você toma dano, ele dá um chute de karatê em quem bateu) e <b>ONÇA PINTADA</b> (lendário: você corre mais rápido e ela dá botes fortes nos bandidos).</li>
         <li><b>Pet Shop da Nina:</b> nova loja (pata verde no mapa) com pets que te seguem pela cidade e dão poderes: <b>Coelho</b> (comum, +1 pulo no ar), <b>Gato</b> (raro, pula nos bandidos e arranha) e <b>Papagaio</b> (épico, a esquiva no ar vira voo longo sem perder altura).</li>
         <li><b>Roupa nova no Brechó:</b> JAPONÊS OJOJ (lendário): sobretudo preto longo com botões dourados, corrente de ouro na gola, cintos laranja e verde e boina com detalhes dourados.</li>
@@ -2373,7 +2376,7 @@ function npcAnim(n){
     m.root.rotation.x=ease(m.root.rotation.x,sit?0:-1.45,8);m.root.position.y=ease(m.root.position.y,sit?-0.55:0.25,8);
     m.legs.forEach(L=>L.rotation.x=ease(L.rotation.x,sit?-1.5:0,8));m.arms.forEach((A,i)=>A.rotation.z=ease(A.rotation.z,sit?0.2*(i?1:-1):(i?1.2:-1.2),8));
     m.head.rotation.x=ease(m.head.rotation.x,sit?0.35:0,6);return;}
-  m.root.rotation.x=ease(m.root.rotation.x,n.stun>0?-0.35:0,12);m.root.position.y=ease(m.root.position.y,0,10);
+  m.root.rotation.x=ease(m.root.rotation.x,n.pinT>t?-1.45:n.stun>0?-0.35:0,12);m.root.position.y=ease(m.root.position.y,0,10);
   n.phase+=dt*n.spd*1.6;const sw=Math.sin(n.phase)*Math.min(1,n.spd/3)*0.8;
   m.legs[0].rotation.x=sw;m.legs[1].rotation.x=-sw;
   const fighting=n.state==='fight'||n.state==='brawl';
@@ -3888,9 +3891,10 @@ const PETS={
   cat:{name:'GATO',price:750,rar:'raro',pow:'ARRANHÃO',desc:'Fica de olho na briga: pula nos bandidos perto de você e arranha sem dó.'},
   parrot:{name:'ARARA',price:1000,rar:'epico',pow:'VOO',desc:'Esquiva no ar vira voo: a caveira estica os braços pra frente e voa longe, sem perder altura.'},
   panda:{name:'PANDA',price:1000,rar:'epico',pow:'KARATÊ',desc:'Gordo e faixa preta. Quando você toma dano, ele parte pra cima de quem bateu com um chute de karatê que empurra longe.'},
-  jaguar:{name:'ONÇA PINTADA',price:1500,rar:'lendario',pow:'FÚRIA DA SELVA',desc:'A rainha da cidade: você corre mais rápido com ela do lado, e ela dá botes fortes nos bandidos perto de você.'}};
-const PET_ORDER=['bunny','cat','parrot','panda','jaguar'];
-let petOwn=[],petEq=null,petObj=null,flyT=0,petGY=0,petCD=0,petPounce=null;const petV=new THREE.Vector3();
+  jaguar:{name:'ONÇA PINTADA',price:2000,rar:'lendario',pow:'BOTE',desc:'A rainha da cidade: vê o bandido antes de você, derruba ele no chão e ataca até soltar. Depois descansa um tempo. Com ela do lado você também corre mais rápido.'},
+  dragon:{name:'CHARIGARTO',price:2000,rar:'lendario',pow:'FOGO',desc:'Dragãozinho pançudo de perninha curta e asas enormes. Cospe fogo nos bandidos perto de você e deixa eles queimando.'}};
+const PET_ORDER=['bunny','cat','parrot','panda','jaguar','dragon'];
+let petOwn=[],petEq=null,petObj=null,flyT=0,petGY=0,petCD=0;const petV=new THREE.Vector3();
 function maxAirJumps(){return 1+skills.lv.jump+(petEq==='bunny'?1:0);}
 function petMats(){if(PMATS)return PMATS;
   const sc=document.createElement('canvas');sc.width=512;sc.height=112;const x=sc.getContext('2d');x.fillStyle='#04140c';x.fillRect(0,0,512,112);x.font='900 50px Impact,sans-serif';x.textAlign='center';x.textBaseline='middle';
@@ -3900,87 +3904,147 @@ function petMats(){if(PMATS)return PMATS;
   PMATS={wall:flat(0x10201a),green:flat(0x2ad06a,0x0a3a1c),stripe:new THREE.MeshStandardMaterial({map:stt}),glass:new THREE.MeshBasicMaterial({color:0xcfffe2}),door:new THREE.MeshBasicMaterial({color:0x9affc8}),
     wood:flat(0x6a4426),bars:new THREE.MeshStandardMaterial({color:0xd8dce4,metalness:0.8,roughness:0.3}),aqua:new THREE.MeshBasicMaterial({color:0x22e6ff,transparent:true,opacity:0.75}),
     sign:new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(sc)}),neonY:new THREE.MeshBasicMaterial({color:0xffd23a,side:THREE.DoubleSide}),red:flat(0xc4161c,0x200304),ink:flat(0x141416),white:flat(0xf2ede4,0x1c1915)};return PMATS;}
-// modelos low-poly (mesmo estilo da caveira); g.userData guarda as partes que mexem
-function petModel(id){const g=new THREE.Group(),u=g.userData;const M=(c,o)=>lp(c,o);const a=(geo,m,x,y,z,par=g)=>add(geo,m,x,y,z,par);const IC=(r,d=0)=>new THREE.IcosahedronGeometry(r,d);
+// modelos low-poly (mesmo estilo da caveira). Tudo fica dentro de u.root, e as partes que mexem ficam em g.userData
+function petModel(id){const g=new THREE.Group(),u=g.userData,root=new THREE.Group();g.add(root);u.id=id;u.root=root;u.legs=[];
+  const M=(c,o)=>lp(c,o),IC=(r,d=0)=>new THREE.IcosahedronGeometry(r,d),a=(geo,m,x,y,z,par=root)=>add(geo,m,x,y,z,par);
+  const grp=(par,x,y,z)=>{const q=new THREE.Group();q.position.set(x,y,z);par.add(q);return q;};
+  const leg=(x,y,z,ph,parts)=>{const q=grp(root,x,y,z);parts(q);u.legs.push({g:q,ph});return q;};
   const ink=M(0x0a0a0a),red=M(0xc4161c,{emissive:0x200304});
-  if(id==='bunny'){const W=M(0xf2ede4,{emissive:0x1c1915}),pk=M(0xff8ac8,{emissive:0x401028});
-    a(IC(0.38,1),W,0,0.42,0).scale.set(1,0.9,1.15);a(IC(0.15),W,0,0.48,-0.44);
-    const hd=new THREE.Group();hd.position.set(0,0.8,0.3);g.add(hd);a(IC(0.27,1),W,0,0,0,hd);
-    u.ears=[-1,1].map(sd=>{const e=new THREE.Group();e.position.set(sd*0.11,0.2,-0.02);e.rotation.z=-sd*0.18;hd.add(e);a(new THREE.BoxGeometry(0.12,0.5,0.06),W,0,0.25,0,e);a(new THREE.BoxGeometry(0.06,0.38,0.02),pk,0,0.25,0.035,e);return e;});
+  if(id==='bunny'){const W=M(0xf2ede4,{emissive:0x1c1915}),pk=M(0xff8ac8,{emissive:0x401028});u.bob=0.02;
+    a(IC(0.36,1),W,0,0.42,0).scale.set(1,0.9,1.15);a(IC(0.14),W,0,0.5,-0.42);
+    const hd=u.head=grp(root,0,0.78,0.3);a(IC(0.26,1),W,0,0,0,hd);
+    u.ears=[-1,1].map(sd=>{const e=grp(hd,sd*0.1,0.18,-0.02);e.rotation.z=-sd*0.18;a(new THREE.BoxGeometry(0.12,0.5,0.06),W,0,0.25,0,e);a(new THREE.BoxGeometry(0.06,0.38,0.02),pk,0,0.25,0.035,e);return e;});
     for(const sd of[-1,1])a(new THREE.SphereGeometry(0.045,6,4),ink,sd*0.12,0.04,0.22,hd);a(IC(0.04),pk,0,-0.04,0.27,hd);
-    for(const sd of[-1,1]){a(new THREE.BoxGeometry(0.14,0.1,0.32),W,sd*0.2,0.06,0.05);a(new THREE.BoxGeometry(0.1,0.18,0.1),W,sd*0.12,0.2,0.32);}
-    a(new THREE.TorusGeometry(0.17,0.04,4,10),red,0,0.62,0.24).rotation.x=Math.PI/2+0.4;}
-  else if(id==='cat'){const B=M(0x16161a,{emissive:0x050505}),Y=new THREE.MeshBasicMaterial({color:0xb6ff3a});
-    a(IC(0.34,1),B,0,0.5,0).scale.set(0.85,0.8,1.4);
-    for(const [x,z] of[[-0.15,0.3],[0.15,0.3],[-0.15,-0.3],[0.15,-0.3]])a(new THREE.CylinderGeometry(0.06,0.07,0.36,5),B,x,0.18,z);
-    const hd=new THREE.Group();hd.position.set(0,0.82,0.45);g.add(hd);a(IC(0.26,1),B,0,0,0,hd).scale.set(1.1,0.95,0.95);
+    a(new THREE.TorusGeometry(0.17,0.04,4,10),red,0,-0.16,-0.06,hd).rotation.x=Math.PI/2+0.4;
+    for(const sd of[-1,1]){leg(sd*0.12,0.3,0.28,0,q=>a(new THREE.BoxGeometry(0.1,0.28,0.1),W,0,-0.14,0,q));
+      leg(sd*0.2,0.28,-0.12,Math.PI,q=>{a(new THREE.BoxGeometry(0.14,0.22,0.16),W,0,-0.1,0,q);a(new THREE.BoxGeometry(0.14,0.07,0.32),W,0,-0.24,0.08,q);});}}
+  else if(id==='cat'){const B=M(0x16161a,{emissive:0x050505}),Y=new THREE.MeshBasicMaterial({color:0xb6ff3a});u.bob=0.03;
+    a(IC(0.32,1),B,0,0.5,0).scale.set(0.8,0.75,1.4);
+    for(const [x,z,ph] of[[-0.14,0.3,0],[0.14,0.3,Math.PI],[-0.14,-0.3,Math.PI],[0.14,-0.3,0]])leg(x,0.42,z,ph,q=>{a(new THREE.CylinderGeometry(0.06,0.065,0.38,5),B,0,-0.19,0,q);a(IC(0.07),B,0,-0.4,0.02,q);});
+    const hd=u.head=grp(root,0,0.78,0.45);a(IC(0.26,1),B,0,0,0,hd).scale.set(1.1,0.95,0.95);
     for(const sd of[-1,1]){const e=a(new THREE.ConeGeometry(0.1,0.2,4),B,sd*0.15,0.24,-0.02,hd);e.rotation.z=-sd*0.25;a(new THREE.SphereGeometry(0.055,6,4),Y,sd*0.1,0.03,0.22,hd).scale.set(1,1.3,0.5);}
-    a(new THREE.ConeGeometry(0.035,0.05,3),M(0xff8ac8),0,-0.05,0.25,hd).rotation.x=Math.PI/2;
-    a(new THREE.TorusGeometry(0.2,0.035,4,12),red,0,-0.16,-0.02,hd).rotation.x=Math.PI/2;
-    u.tail=new THREE.Group();u.tail.position.set(0,0.6,-0.45);g.add(u.tail);
-    const pts=[];for(let i=0;i<=8;i++){const k=i/8;pts.push(new THREE.Vector3(0,k*0.6,-Math.sin(k*1.6)*0.25));}
+    a(new THREE.ConeGeometry(0.035,0.05,3),M(0xff8ac8),0,-0.05,0.25,hd).rotation.x=Math.PI/2;a(new THREE.TorusGeometry(0.2,0.035,4,12),red,0,-0.16,-0.02,hd).rotation.x=Math.PI/2;
+    u.tail=grp(root,0,0.58,-0.42);const pts=[];for(let i=0;i<=8;i++){const k=i/8;pts.push(new THREE.Vector3(0,k*0.6,-Math.sin(k*1.6)*0.25));}
     a(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),12,0.05,5,false),B,0,0,0,u.tail);}
   else if(id==='parrot'){const Bl=M(0x1e4fd8,{emissive:0x061440}),Bd=M(0x16379a,{emissive:0x040c30}),Yl=M(0xffd23a,{emissive:0x403000}),Bk=M(0x0c0c0e);
     a(IC(0.24,1),Bl,0,0.5,0).scale.set(0.9,1.3,0.95);
-    const hd=new THREE.Group();hd.position.set(0,0.9,0.06);g.add(hd);a(IC(0.19,1),Bl,0,0,0,hd);
+    const hd=u.head=grp(root,0,0.9,0.06);a(IC(0.19,1),Bl,0,0,0,hd);
     for(const sd of[-1,1]){const rg=a(new THREE.TorusGeometry(0.045,0.022,5,12),Yl,sd*0.15,0.03,0.1,hd);rg.rotation.y=sd*0.95;a(new THREE.SphereGeometry(0.032,6,4),Bk,sd*0.152,0.03,0.1,hd);}
     const bk=a(new THREE.ConeGeometry(0.1,0.24,5),Bk,0,-0.07,0.2,hd);bk.rotation.x=Math.PI/2+0.75;a(new THREE.BoxGeometry(0.12,0.03,0.05),Yl,0,-0.1,0.13,hd);
-    u.wings=[-1,1].map(sd=>{const w=new THREE.Group();w.position.set(sd*0.2,0.65,0);g.add(w);a(new THREE.BoxGeometry(0.42,0.06,0.3),Bl,sd*0.21,0,0,w);a(new THREE.BoxGeometry(0.2,0.065,0.22),Bd,sd*0.3,0.005,-0.02,w);return w;});
-    const tl=a(new THREE.BoxGeometry(0.12,0.55,0.05),Bd,0,0.2,-0.2);tl.rotation.x=-0.5;
+    u.wings=[-1,1].map(sd=>{const w=grp(root,sd*0.2,0.65,0);a(new THREE.BoxGeometry(0.42,0.06,0.3),Bl,sd*0.21,0,0,w);a(new THREE.BoxGeometry(0.2,0.065,0.22),Bd,sd*0.3,0.005,-0.02,w);return w;});
+    u.tail=grp(root,0,0.42,-0.16);const tl=a(new THREE.BoxGeometry(0.12,0.55,0.05),Bd,0,-0.2,-0.08,u.tail);tl.rotation.x=-0.5;
     for(const sd of[-1,1])a(new THREE.BoxGeometry(0.05,0.12,0.08),Bk,sd*0.08,0.12,0.02);}
-  else if(id==='panda'){const W=M(0xf2ede4,{emissive:0x1c1915}),K=M(0x111113),Bt=M(0xc4161c,{emissive:0x200304});
-    a(IC(0.55,1),W,0,0.62,0).scale.set(1.18,1.0,1.12);a(IC(0.4,1),W,0,0.55,0.22).scale.set(1.15,0.95,1);
-    a(C(0.68,0.68,0.12,12),Bt,0,0.55,0).scale.set(1,1,0.95);
-    a(IC(0.42,1),K,0,0.92,-0.05).scale.set(1.3,0.45,1.05);
-    for(const [x,z] of[[-0.36,0.25],[0.36,0.25],[-0.36,-0.3],[0.36,-0.3]])a(IC(0.2,1),K,x,0.18,z).scale.set(1,1.1,1.1);
-    for(const sd of[-1,1])a(IC(0.17,1),K,sd*0.62,0.72,0.2).scale.set(0.9,1.3,0.9);
-    const hd=new THREE.Group();hd.position.set(0,1.18,0.32);g.add(hd);a(IC(0.36,1),W,0,0,0,hd).scale.set(1.12,0.98,0.95);
+  else if(id==='panda'){const W=M(0xf2ede4,{emissive:0x1c1915}),K=M(0x111113),Bt=M(0xc4161c,{emissive:0x200304});u.bob=0.05;u.waddle=0.12;
+    a(IC(0.52,1),W,0,0.66,0).scale.set(1.18,1.05,1.08);a(IC(0.38,1),W,0,0.58,0.2).scale.set(1.15,0.95,1);
+    a(C(0.62,0.63,0.12,12),Bt,0,0.6,0.02).scale.set(1,1,0.95);for(const sd of[-1,1])a(new THREE.BoxGeometry(0.06,0.22,0.03),Bt,sd*0.07,0.48,0.63).rotation.z=sd*0.35;
+    a(IC(0.42,1),K,0,1.0,-0.05).scale.set(1.3,0.45,1.05);
+    u.arms=[-1,1].map(sd=>{const q=grp(root,sd*0.56,0.96,0.12);a(IC(0.16,1),K,0,-0.16,0.04,q).scale.set(0.9,1.4,0.9);return q;});
+    for(const sd of[-1,1])leg(sd*0.27,0.3,0.1,sd<0?0:Math.PI,q=>{a(IC(0.19,1),K,0,-0.08,0,q).scale.set(1,1.05,1.1);a(IC(0.12,1),K,0,-0.2,0.12,q).scale.set(1.1,0.6,1.2);});
+    const hd=u.head=grp(root,0,1.32,0.14);a(IC(0.36,1),W,0,0,0,hd).scale.set(1.12,0.98,0.95);
     for(const sd of[-1,1]){a(IC(0.12,1),K,sd*0.26,0.3,-0.05,hd);const pt=a(IC(0.1,1),K,sd*0.14,0.04,0.29,hd);pt.scale.set(1,1.35,0.5);pt.rotation.z=sd*0.5;a(new THREE.SphereGeometry(0.03,6,4),W,sd*0.14,0.07,0.34,hd);}
-    a(IC(0.05),K,0,-0.08,0.35,hd);
-    for(const sd of[-1,1])a(new THREE.BoxGeometry(0.06,0.18,0.03),Bt,sd*0.06,-0.1,-0.42).rotation.z=sd*0.4;}
-  else if(id==='jaguar'){const O=M(0xc98224,{emissive:0x1a0c02}),Cr=M(0xf2e2c0,{emissive:0x1c1610}),K=M(0x141008),Gr=new THREE.MeshBasicMaterial({color:0xb6ff3a});
-    a(IC(0.38,1),O,0,0.62,0).scale.set(0.9,0.8,1.65);a(IC(0.3,1),Cr,0,0.5,0.05).scale.set(0.85,0.6,1.5);
-    for(const [x,z] of[[-0.2,0.38],[0.2,0.38],[-0.2,-0.38],[0.2,-0.38]])a(C(0.08,0.1,0.5,5),O,x,0.24,z);
-    let sd2=7;const rn=()=>{sd2=(sd2*16807)%2147483647;return sd2/2147483647;};
-    for(let i=0;i<22;i++){const an=rn()*Math.PI*1.4-0.7+(i%2?Math.PI:0),zz=-0.5+rn()*1.0;const sp=a(IC(0.075),K,Math.sin(an)*0.36,0.62+Math.cos(an)*0.32,zz);sp.scale.set(1,1,0.5);sp.lookAt(0,0.62,zz);}
-    const hd=new THREE.Group();hd.position.set(0,0.92,0.62);g.add(hd);a(IC(0.27,1),O,0,0,0,hd).scale.set(1.15,0.95,1);a(IC(0.14,1),Cr,0,-0.08,0.2,hd).scale.set(1.2,0.8,0.8);
-    for(const sd of[-1,1]){a(new THREE.ConeGeometry(0.09,0.14,4),O,sd*0.17,0.24,-0.03,hd);a(new THREE.SphereGeometry(0.05,6,4),Gr,sd*0.11,0.06,0.22,hd).scale.set(1.2,1,0.5);a(IC(0.035),K,sd*0.2,0.12,0.05,hd);}
-    a(IC(0.04),K,0,-0.03,0.32,hd);
-    u.tail=new THREE.Group();u.tail.position.set(0,0.66,-0.6);g.add(u.tail);
-    const pts=[];for(let i=0;i<=8;i++){const k=i/8;pts.push(new THREE.Vector3(0,Math.sin(k*1.2)*0.35,-k*0.7));}
-    a(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),12,0.055,5,false),O,0,0,0,u.tail);for(let i=1;i<4;i++){const k=i/4;a(new THREE.TorusGeometry(0.06,0.02,4,8),K,0,Math.sin(k*1.2)*0.35,-k*0.7,u.tail);}}
+    a(IC(0.05),K,0,-0.08,0.35,hd);}
+  else if(id==='jaguar'){const O=M(0xd08a26,{emissive:0x1a0c02}),Cr=M(0xf2e2c0,{emissive:0x1c1610}),K=M(0x141008),Gr=new THREE.MeshBasicMaterial({color:0xb6ff3a});u.bob=0.05;
+    a(IC(0.3,1),O,0,0.68,0.34).scale.set(1,1.02,1.1);a(IC(0.29,1),O,0,0.66,-0.3).scale.set(1,1,1.1);a(IC(0.27,1),O,0,0.65,0.02).scale.set(0.95,0.9,1.5);
+    a(IC(0.24,1),Cr,0,0.54,0.02).scale.set(0.8,0.5,1.7);
+    for(const [x,z,ph] of[[-0.17,0.38,0],[0.17,0.38,Math.PI],[-0.17,-0.36,Math.PI],[0.17,-0.36,0]])leg(x,0.56,z,ph,q=>{
+      a(new THREE.CylinderGeometry(0.1,0.085,0.3,6),O,0,-0.15,0,q);a(new THREE.CylinderGeometry(0.075,0.07,0.26,6),O,0,-0.4,0.02,q);a(IC(0.09,1),Cr,0,-0.53,0.05,q).scale.set(1,0.6,1.3);});
+    a(IC(0.18,1),O,0,0.82,0.55);
+    const hd=u.head=grp(root,0,0.9,0.7);a(IC(0.22,1),O,0,0,0,hd).scale.set(1.15,0.95,1.05);
+    a(IC(0.12,1),Cr,0,-0.07,0.17,hd).scale.set(1.1,0.8,1);a(IC(0.035),K,0,-0.02,0.29,hd);
+    u.jaw=grp(hd,0,-0.12,0.08);a(IC(0.09,1),Cr,0,-0.02,0.08,u.jaw).scale.set(1.1,0.5,1);
+    for(const sd of[-1,1]){a(new THREE.SphereGeometry(0.045,6,4),Gr,sd*0.1,0.05,0.18,hd).scale.set(1.2,1,0.5);a(new THREE.SphereGeometry(0.075,6,5),O,sd*0.15,0.17,-0.04,hd).scale.set(1,1,0.5);a(new THREE.SphereGeometry(0.05,6,4),K,sd*0.15,0.17,-0.07,hd).scale.set(1,1,0.4);
+      for(let i=0;i<3;i++)a(IC(0.025),K,sd*(0.08+i*0.05),0.13-i*0.03,0.13,hd);}
+    const RS=new THREE.TorusGeometry(0.055,0.018,4,8),RD=IC(0.025);let sd2=11;const rn=()=>{sd2=(sd2*16807)%2147483647;return sd2/2147483647;};
+    for(let i=0;i<34;i++){const th=(rn()*2-1)*1.25,zz=-0.58+rn()*1.16,rx=0.3,ry=0.29,y0=0.66;const x=Math.sin(th)*(rx+0.015),y=y0+Math.cos(th)*(ry+0.015);
+      const r1=a(RS,K,x,y,zz);r1.lookAt(x*3,y0+(y-y0)*3,zz);const d=a(RD,M(0x8a5a14),x,y,zz);d.scale.set(1,1,0.4);}
+    for(let i=0;i<8;i++){const th=(rn()*2-1)*0.9;a(RD,K,Math.sin(th)*0.24,0.9+Math.cos(th)*0.17,0.7+rn()*0.05).scale.setScalar(0.9);}
+    u.tail=grp(root,0,0.7,-0.6);const pts=[];for(let i=0;i<=10;i++){const k=i/10;pts.push(new THREE.Vector3(0,-Math.sin(k*2.2)*0.3+k*k*0.25,-k*0.85));}
+    a(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),14,0.055,5,false),O,0,0,0,u.tail);
+    for(let i=2;i<=9;i+=2){const p2=pts[i];a(new THREE.TorusGeometry(0.06,0.022,4,8),K,p2.x,p2.y,p2.z,u.tail);}a(IC(0.07,1),K,pts[10].x,pts[10].y,pts[10].z,u.tail);}
+  else if(id==='dragon'){const Or=M(0xf07a1a,{emissive:0x2a1004}),Be=M(0xf2dca0,{emissive:0x1c1608}),Tq=lp(0x3ad6c0,{emissive:0x0a3a30,side:THREE.FrontSide}),OrB=lp(0xf07a1a,{emissive:0x2a1004,side:THREE.FrontSide}),Wt=M(0xf6f2ec);u.bob=0.04;u.waddle=0.14;
+    a(IC(0.46,1),Or,0,0.66,0).scale.set(1.02,1.08,1.0);a(IC(0.34,1),Be,0,0.6,0.33).scale.set(1,1.05,0.5);
+    a(IC(0.2,1),Or,0,1.04,0.06);
+    const hd=u.head=grp(root,0,1.3,0.12);a(IC(0.3,1),Or,0,0,0,hd).scale.set(1,0.95,1.1);a(IC(0.18,1),Or,0,-0.05,0.26,hd).scale.set(1.15,0.8,1.15);
+    for(const sd of[-1,1]){a(new THREE.SphereGeometry(0.07,8,6),Wt,sd*0.15,0.07,0.24,hd).scale.set(0.7,1,0.5);a(new THREE.SphereGeometry(0.035,6,4),ink,sd*0.16,0.08,0.27,hd);
+      a(IC(0.02),ink,sd*0.06,-0.02,0.45,hd);const hr=a(new THREE.ConeGeometry(0.05,0.2,4),Be,sd*0.14,0.24,-0.12,hd);hr.rotation.x=-0.9;}
+    u.jaw=grp(hd,0,-0.14,0.1);a(IC(0.13,1),Be,0,-0.02,0.16,u.jaw).scale.set(1.05,0.45,1.1);
+    u.arms=[-1,1].map(sd=>{const q=grp(root,sd*0.38,0.88,0.24);a(new THREE.CylinderGeometry(0.06,0.055,0.22,5),Or,0,-0.1,0.03,q).rotation.x=0.6;for(let i=-1;i<=1;i++)a(new THREE.ConeGeometry(0.02,0.06,3),Wt,i*0.03,-0.2,0.12,q).rotation.x=2;return q;});
+    for(const sd of[-1,1])leg(sd*0.24,0.3,0.04,sd<0?0:Math.PI,q=>{a(IC(0.16,1),Or,0,-0.06,0,q).scale.set(1,1.2,1.1);a(new THREE.BoxGeometry(0.2,0.08,0.28),Or,0,-0.22,0.06,q);for(let i=-1;i<=1;i++)a(new THREE.ConeGeometry(0.025,0.06,3),Wt,i*0.06,-0.22,0.22,q).rotation.x=Math.PI/2;});
+    u.wings=[-1,1].map(sd=>{const w=grp(root,sd*0.22,1.0,-0.28);const sh=new THREE.Shape();
+      sh.moveTo(0,0);sh.lineTo(sd*0.75,0.55);sh.lineTo(sd*1.3,0.15);sh.lineTo(sd*1.05,-0.15);sh.lineTo(sd*0.9,-0.05);sh.lineTo(sd*0.7,-0.4);sh.lineTo(sd*0.5,-0.25);sh.lineTo(sd*0.25,-0.5);sh.lineTo(0,-0.25);sh.lineTo(0,0);
+      const geo=new THREE.ShapeGeometry(sh);const fr=new THREE.Mesh(geo,Tq),bk=new THREE.Mesh(geo,OrB);bk.rotation.y=Math.PI;bk.scale.x=-1;fr.castShadow=true;w.add(fr,bk);
+      for(const [x2,y2] of[[0.75,0.55],[1.3,0.15]]){const ln=Math.hypot(x2,y2),b=a(new THREE.CylinderGeometry(0.03,0.03,ln,4),Or,sd*x2/2,y2/2,0,w);b.rotation.z=-Math.atan2(sd*x2,y2);}
+      w.rotation.y=-sd*0.5;return w;});
+    u.tail=grp(root,0,0.42,-0.36);const pts=[];for(let i=0;i<=10;i++){const k=i/10;pts.push(new THREE.Vector3(0,-0.15*Math.sin(k*3)+k*k*0.55,-k*0.75));}
+    for(let i=0;i<10;i++){const p2=pts[i],r2=0.16-i*0.012;a(IC(r2,1),Or,p2.x,p2.y,p2.z,u.tail);}
+    u.flame=grp(u.tail,pts[10].x,pts[10].y+0.12,pts[10].z);const F1=new THREE.MeshBasicMaterial({color:0xff7a1a}),F2=new THREE.MeshBasicMaterial({color:0xffd23a});
+    a(new THREE.ConeGeometry(0.13,0.36,6),F1,0,0.1,0,u.flame);a(new THREE.ConeGeometry(0.07,0.24,6),F2,0,0.08,0.02,u.flame);}
   g.traverse(o=>{if(o.isMesh)o.castShadow=true;});return g;}
-function petAnim(g,id,mv,tt){const u=g.userData;
-  if(u.ears)u.ears.forEach((e,i)=>{e.rotation.x=Math.sin(tt*(mv?14:3)+i)*(mv?0.35:0.1);});
-  if(u.tail)u.tail.rotation.z=Math.sin(tt*(mv?8:2))*0.4;
-  if(u.wings)u.wings.forEach((w,i)=>{w.rotation.z=(i?-1:1)*(Math.sin(tt*(mv?22:5))*(mv?0.8:0.25)-0.1);});}
-function applyPet(){if(petObj){scene.remove(petObj);petObj=null;}petPounce=null;if(!petEq)return;
-  petObj=petModel(petEq);petObj.scale.setScalar(1.15);petObj.position.copy(player.position);scene.add(petObj);}
+// mode: idle, walk, run, fly, bite, kick, fire
+function petAnim(g,mode,tt){const u=g.userData,mv=mode==='walk'||mode==='run'||mode==='fly',f=mode==='run'?17:11,k=mode==='run'?1:mode==='walk'?0.7:0;
+  u.legs.forEach(L=>{L.g.rotation.x=k?Math.sin(tt*f+L.ph)*0.7*k:L.g.rotation.x*0.85;});
+  u.root.position.y=k?Math.abs(Math.sin(tt*f))*(u.bob||0.03):0;u.root.scale.y=1+Math.sin(tt*2.4)*0.03;u.root.scale.x=u.root.scale.z=1-Math.sin(tt*2.4)*0.012;
+  u.root.rotation.z=u.waddle&&k?Math.sin(tt*f*0.5)*u.waddle:u.root.rotation.z*0.9;u.root.rotation.x=mode==='bite'?0.25:0;
+  if(u.head){u.head.rotation.x=mode==='bite'?0.35+Math.abs(Math.sin(tt*14))*0.35:mode==='fire'?-0.15+Math.sin(tt*30)*0.04:Math.sin(tt*1.7)*0.06+(k?Math.sin(tt*f*2)*0.05:0);
+    u.head.rotation.y=mv||mode!=='idle'?0:Math.sin(tt*0.55)*0.35;}
+  if(u.jaw)u.jaw.rotation.x=mode==='bite'?0.2+Math.abs(Math.sin(tt*14))*0.4:mode==='fire'?0.55:0;
+  if(u.tail)u.tail.rotation.y=Math.sin(tt*(k?9:2.2))*(k?0.45:0.25);
+  if(u.ears)u.ears.forEach((e,i)=>{e.rotation.x=k?-0.3+Math.sin(tt*f+i)*0.35:Math.sin(tt*2+i)*0.08;});
+  if(u.arms)u.arms.forEach((q,i)=>{q.rotation.x=mode==='kick'?-1.4:k?Math.sin(tt*f+i*Math.PI)*0.6:Math.sin(tt*2+i)*0.08;});
+  if(mode==='kick'&&u.legs[0])u.legs[0].g.rotation.x=-1.5;
+  if(u.wings){const fast=u.id==='parrot'?(mv?24:6):(mode==='fire'?10:k?8:2.5),amp=u.id==='parrot'?(mv?0.85:0.25):(k?0.5:0.2);
+    u.wings.forEach((w,i)=>{const s2=i?-1:1;if(u.id==='parrot')w.rotation.z=s2*(Math.sin(tt*fast)*amp-0.1);else w.rotation.y=-s2*(0.5+Math.sin(tt*fast)*amp);});}
+  if(u.flame){u.flame.scale.set(1+Math.sin(tt*23)*0.15,1+Math.sin(tt*31)*0.25,1+Math.sin(tt*19)*0.15);u.flame.rotation.y=tt*6;}}
+const PSCALE={bunny:1.15,cat:1.15,parrot:1.15,panda:0.92,jaguar:1.1,dragon:0.95};
+const petLv=()=>1+0.25*(lvl-1); // mesma curva da vida dos inimigos, sem arma nem força da caveira
+function petHit(n,dmg,kb,up,dx,dz){if(n.state==='down'||!n.hittable)return;SFX.hit(false);n.hp-=dmg*petLv();
+  if(!n.boss){n.stun=Math.max(n.stun||0,0.5);n.vel.set(dx*kb,up,dz*kb);if(up>0)n.air=true;}n.atkT=0;
+  n.flash=0.1;n.m.meshes.forEach(m=>{m.userData.mat=m.userData.mat||m.material;m.material=DM.flash;});const p=n.m.g.position;
+  if(n.hp<=0){if(n.state!=='down'){n.state='down';n.vel.y+=3;n.air=true;}spark(p.x,p.y+1.5,p.z,12,0xefece4,9);killXP(n);if(n.bar)n.bar.visible=false;}
+  else if(n.onHit)n.onHit(n);}
+function applyPet(){if(petObj){scene.remove(petObj);petObj=null;}petAct=null;if(!petEq)return;
+  petObj=petModel(petEq);petObj.scale.setScalar(PSCALE[petEq]||1);petObj.position.copy(player.position);scene.add(petObj);}
+function petNearest(P,R){const fs=foesNear(P,R).sort((a,b)=>a.l-b.l);return fs.length?fs[0].n:null;}
+let petAct=null;
 function petTick(){if(!petObj)return;petObj.visible=started&&!shopOpen&&state!=='dead';if(!petObj.visible)return;
-  const P=player.position,g=petObj,q=g.position,ry=player.rotation.y;petCD-=dt;
-  // gato e onça: pulam no bandido mais perto; panda: chute de karatê em quem te bateu
-  {const hunt=petEq==='cat'||petEq==='jaguar';
-    if(hunt&&!petPounce&&petCD<=0&&state==='normal'&&q.distanceTo(P)<6){const fs=foesNear(P,8).sort((a,b)=>a.l-b.l);if(fs.length){petPounce={n:fs[0].n,t:1};petCD=petEq==='jaguar'?0.8:1.2;}}
-    if(petPounce){const tq=petPounce.n.m.g.position,dx=tq.x-q.x,dz=tq.z-q.z,l=Math.hypot(dx,dz)||0.01;petPounce.t-=dt;
-      const sp=petEq==='cat'?26:34;q.x+=dx/l*Math.min(l,sp*dt);q.z+=dz/l*Math.min(l,sp*dt);q.y=ease(q.y,tq.y+0.6+Math.sin(Math.min(1,l/4)*Math.PI)*0.8,14);if(petPounce.kick)g.rotation.y+=dt*24;else g.rotation.y=Math.atan2(dx,dz);
-      if(l<(petPounce.kick?1.7:1.1)){const n=petPounce.n,k=petPounce.kick?[24,16,5]:petEq==='jaguar'?[20,5,3]:[10,3,2];
-        if(n.hittable&&n.state!=='down'){hitNPC(n,k[0]*(1+0.25*(lvl-1)),k[1],k[2],dx/l,dz/l);
-          if(petPounce.kick){ringFx(tq.x,tq.y+0.3,tq.z,3,DM.ring,0.35);spark(tq.x,tq.y+1.8,tq.z,10,0xefece4,7);shake=Math.max(shake,0.3);comboTxt('KARATÊ DO PANDA');}
-          else for(let i=0;i<3;i++)spark(tq.x+(i-1)*0.25,tq.y+1.6-i*0.15,tq.z,3,0xc4161c,4);SFX.whoosh&&SFX.whoosh(false);}petPounce=null;}
-      else if(petPounce.t<=0||!n0(petPounce.n))petPounce=null;
-      petAnim(g,petEq,true,t);return;}}
+  const P=player.position,g=petObj,q=g.position,ry=player.rotation.y,sc=PSCALE[petEq]||1;petCD-=dt;
+  // gatilhos: gato arranha, onça dá o bote antes da caveira chegar, dragão cospe fogo
+  if(!petAct&&petCD<=0&&state==='normal'&&q.distanceTo(P)<9){let n;
+    if(petEq==='cat'&&(n=petNearest(P,8))){petAct={k:'pounce',n,t:1};petCD=1.2;}
+    else if(petEq==='jaguar'&&(n=petNearest(P,15))){petAct={k:'charge',n,t:1.8};petCD=9;}
+    else if(petEq==='dragon'&&(n=petNearest(P,9))){petAct={k:'fire',n,t:1.3,tk:0};petCD=5;}}
+  if(petAct&&!n0(petAct.n)){if(petAct.n)petAct.n.pinT=0;petAct=null;}
+  if(petAct){const A=petAct,n=A.n,tq=n.m.g.position,dx=tq.x-q.x,dz=tq.z-q.z,l=Math.hypot(dx,dz)||0.01;A.t-=dt;let mode='run';
+    if(A.k==='pounce'||A.k==='kick'||A.k==='charge'){const sp=A.k==='pounce'?26:A.k==='kick'?30:36,arc=A.k==='charge'?1.2:0.8;
+      q.x+=dx/l*Math.min(l,sp*dt);q.z+=dz/l*Math.min(l,sp*dt);q.y=ease(q.y,tq.y+Math.sin(Math.min(1,l/5)*Math.PI)*arc,14);
+      if(A.k==='kick'){g.rotation.y+=dt*24;mode='kick';}else g.rotation.y=Math.atan2(dx,dz);
+      if(l<(A.k==='kick'?1.7:1.2)){
+        if(A.k==='pounce'){petHit(n,7,3,2,dx/l,dz/l);for(let i=0;i<3;i++)spark(tq.x+(i-1)*0.25,tq.y+1.6-i*0.15,tq.z,3,0xc4161c,4);petAct=null;}
+        else if(A.k==='kick'){petHit(n,22,16,5,dx/l,dz/l);ringFx(tq.x,tq.y+0.3,tq.z,3,DM.ring,0.35);spark(tq.x,tq.y+1.8,tq.z,10,0xefece4,7);shake=Math.max(shake,0.3);comboTxt('KARATÊ DO PANDA');petAct=null;}
+        else{petHit(n,10,0,0,dx/l,dz/l);n.vel.set(0,0,0);n.pinT=t+1.8;n.stun=Math.max(n.stun,0.6);petAct={k:'maul',n,t:1.8,tk:0.3};
+          ringFx(tq.x,tq.y+0.2,tq.z,2.6,DM.ring,0.3);shake=Math.max(shake,0.35);comboTxt('BOTE DA ONÇA');}}
+      else if(A.t<=0)petAct=null;}
+    else if(A.k==='maul'){mode='bite';n.stun=Math.max(n.stun,0.4);const bx=tq.x-Math.sin(n.m.g.rotation.y)*0.6,bz=tq.z-Math.cos(n.m.g.rotation.y)*0.6;
+      q.x=ease(q.x,bx,14);q.z=ease(q.z,bz,14);q.y=ease(q.y,tq.y+0.3,14);g.rotation.y=Math.atan2(tq.x-q.x,tq.z-q.z);A.tk-=dt;
+      if(A.tk<=0&&A.t>0.2){A.tk=0.4;petHit(n,6,0,0,0,0);n.vel.set(0,0,0);spark(tq.x,tq.y+0.6,tq.z,4,0xc4161c,4);}
+      if(A.t<=0){n.pinT=0;petAct=null;}}
+    else if(A.k==='fire'){mode='fire';g.rotation.y=Math.atan2(dx,dz);A.tk-=dt;const fx=dx/l,fz=dz/l,hx=q.x+fx*0.5*sc,hy=q.y+1.2*sc,hz=q.z+fz*0.5*sc;
+      for(let i=1;i<=3;i++){const d2=Math.min(l,6)*i/3;emit('flame',hx+fx*d2,hy-0.25*i,hz+fz*d2,1,{spd:0.8,up:0.6,life:0.35,size:0.6+i*0.25,grow:0.6});}
+      if(A.tk<=0){A.tk=0.2;foesNear(q,7.5).forEach(f2=>{if((f2.dx*fx+f2.dz*fz)/f2.l>0.75){petHit(f2.n,3,0.4,0,f2.dx/f2.l,f2.dz/f2.l);f2.n.burn=Math.max(f2.n.burn||0,1.2);}});}
+      if(A.t<=0)petAct=null;}
+    petAnim(g,mode,t);return;}
   // segue a caveira: atrás e do lado; arara voa na altura do ombro
-  const fly=petEq==='parrot',sx=fly?-1.1:1.3,bz=fly?-0.4:-1.6;
+  const fly=petEq==='parrot',sx=fly?-1.1:1.4,bz=fly?-0.4:-1.7;
   petV.set(P.x+Math.cos(ry)*sx+Math.sin(ry)*bz,P.y,P.z-Math.sin(ry)*sx+Math.cos(ry)*bz);
   if(q.distanceTo(petV)>18)q.copy(petV);
-  const dx=petV.x-q.x,dz=petV.z-q.z,l=Math.hypot(dx,dz),mv=l>0.35||moveAmt>0.2;
+  const dx=petV.x-q.x,dz=petV.z-q.z,l=Math.hypot(dx,dz),spd=l/Math.max(dt,0.001)*(1-Math.exp(-6*dt));
   q.x=ease(q.x,petV.x,fly?7:6);q.z=ease(q.z,petV.z,fly?7:6);
   if(fly)q.y=ease(q.y,P.y+3.3+Math.sin(t*3)*0.15,8);
-  else{if(onGround)petGY=P.y;q.y=ease(q.y,petGY,10);if(petEq==='bunny'&&mv)q.y=petGY+Math.abs(Math.sin(t*9))*0.45;}
-  if(l>0.1)g.rotation.y=Math.atan2(dx,dz);else g.rotation.y=ease(g.rotation.y,ry,6);
-  petAnim(g,petEq,mv,t);}
-function pandaCounter(){if(!petObj||petEq!=='panda'||(petPounce&&petPounce.kick))return;const fs=foesNear(player.position,8).sort((a,b)=>a.l-b.l);if(fs.length)petPounce={n:fs[0].n,t:1.2,kick:true};}
-function n0(n){return ev&&ev.npcs.includes(n)&&n.state!=='down';}
+  else{if(onGround)petGY=P.y;q.y=ease(q.y,petGY,10);if(petEq==='bunny'&&l>0.3)q.y=petGY+Math.abs(Math.sin(t*9))*0.45;}
+  if(l>0.15)g.rotation.y=Math.atan2(dx,dz);else g.rotation.y=ease(g.rotation.y,ry,6);
+  petAnim(g,fly?(l>0.3?'fly':'idle'):l>0.3?(spd>7?'run':'walk'):'idle',t);}
+function pandaCounter(){if(!petObj||petEq!=='panda'||(petAct&&petAct.k==='kick'))return;const n=petNearest(player.position,8);if(n)petAct={k:'kick',n,t:1.2};}
+function n0(n){return n&&ev&&ev.npcs.includes(n)&&n.state!=='down';}
 // ---- loja ----
 let nearPet=null,petOpen=false,selP=null,ptR=null,ptScene=null,ptCam=null,ptHold=null,ptShown=null,ptSpin=0,ptDrag=null;
 function petShopUpdate(){const P=player.position;nearPet=null;
@@ -3990,7 +4054,8 @@ function petSVG(id){const S={
   cat:'<g stroke="#efece4" stroke-width="3" stroke-linejoin="round" fill="#16161a"><path d="M96 70 Q112 50 100 30" fill="none" stroke-width="7"/><ellipse cx="66" cy="88" rx="32" ry="20"/><path d="M34 52 L36 22 L52 38Z M86 52 L84 22 L68 38Z"/><circle cx="60" cy="56" r="24"/></g><ellipse cx="51" cy="54" rx="4" ry="6" fill="#b6ff3a"/><ellipse cx="69" cy="54" rx="4" ry="6" fill="#b6ff3a"/><path d="M57 64 h6 l-3 4z" fill="#ff8ac8"/><path d="M38 76 Q60 86 82 76" stroke="#c4161c" stroke-width="5" fill="none"/>',
   parrot:'<g stroke="#0a0a0a" stroke-width="3" stroke-linejoin="round"><path d="M54 92 L44 116 L60 112 L66 94Z" fill="#16379a"/><ellipse cx="60" cy="72" rx="22" ry="30" fill="#1e4fd8"/><path d="M40 62 Q22 76 34 98 Q44 86 46 70Z M80 62 Q98 76 86 98 Q76 86 74 70Z" fill="#16379a"/><circle cx="60" cy="36" r="18" fill="#1e4fd8"/><path d="M66 38 Q82 40 74 56 Q70 46 62 46Z" fill="#0c0c0e"/></g><circle cx="53" cy="33" r="6" fill="#0c0c0e" stroke="#ffd23a" stroke-width="3.5"/><path d="M60 46 h8" stroke="#ffd23a" stroke-width="3"/>',
   panda:'<g stroke="#0a0a0a" stroke-width="3"><circle cx="36" cy="30" r="10" fill="#111113"/><circle cx="84" cy="30" r="10" fill="#111113"/><ellipse cx="60" cy="88" rx="40" ry="28" fill="#f2ede4"/><path d="M22 80 Q20 100 30 108 L40 100Z M98 80 Q100 100 90 108 L80 100Z" fill="#111113"/><rect x="22" y="82" width="76" height="8" fill="#c4161c"/><circle cx="60" cy="50" r="26" fill="#f2ede4"/></g><ellipse cx="50" cy="48" rx="7" ry="9" fill="#111113" transform="rotate(25 50 48)"/><ellipse cx="70" cy="48" rx="7" ry="9" fill="#111113" transform="rotate(-25 70 48)"/><circle cx="51" cy="47" r="2.5" fill="#fff"/><circle cx="69" cy="47" r="2.5" fill="#fff"/><ellipse cx="60" cy="60" rx="4" ry="3"/>',
-  jaguar:'<g stroke="#0a0a0a" stroke-width="3" stroke-linejoin="round"><path d="M98 78 Q114 70 108 52" fill="none" stroke="#e0a030" stroke-width="7"/><ellipse cx="62" cy="86" rx="38" ry="20" fill="#e0a030"/><path d="M34 44 L36 24 L50 34Z M86 44 L84 24 L70 34Z" fill="#e0a030"/><circle cx="60" cy="52" r="24" fill="#e0a030"/><ellipse cx="60" cy="62" rx="12" ry="8" fill="#f2e2c0"/></g><g fill="#141008"><circle cx="40" cy="82" r="4"/><circle cx="56" cy="76" r="4"/><circle cx="72" cy="84" r="4"/><circle cx="86" cy="76" r="3.5"/><circle cx="48" cy="94" r="3.5"/><circle cx="64" cy="94" r="3.5"/><circle cx="44" cy="40" r="2.5"/><circle cx="76" cy="40" r="2.5"/></g><ellipse cx="51" cy="51" rx="4" ry="5" fill="#b6ff3a"/><ellipse cx="69" cy="51" rx="4" ry="5" fill="#b6ff3a"/><path d="M57 60 h6 l-3 4z"/>'};
+  jaguar:'<g stroke="#0a0a0a" stroke-width="3" stroke-linejoin="round"><path d="M98 78 Q114 70 108 52" fill="none" stroke="#e0a030" stroke-width="7"/><ellipse cx="62" cy="86" rx="38" ry="20" fill="#e0a030"/><path d="M34 44 L36 24 L50 34Z M86 44 L84 24 L70 34Z" fill="#e0a030"/><circle cx="60" cy="52" r="24" fill="#e0a030"/><ellipse cx="60" cy="62" rx="12" ry="8" fill="#f2e2c0"/></g><g fill="#141008"><circle cx="40" cy="82" r="4"/><circle cx="56" cy="76" r="4"/><circle cx="72" cy="84" r="4"/><circle cx="86" cy="76" r="3.5"/><circle cx="48" cy="94" r="3.5"/><circle cx="64" cy="94" r="3.5"/><circle cx="44" cy="40" r="2.5"/><circle cx="76" cy="40" r="2.5"/></g><ellipse cx="51" cy="51" rx="4" ry="5" fill="#b6ff3a"/><ellipse cx="69" cy="51" rx="4" ry="5" fill="#b6ff3a"/><path d="M57 60 h6 l-3 4z"/>',
+  dragon:'<g stroke="#0a0a0a" stroke-width="3" stroke-linejoin="round"><path d="M44 52 L8 30 L16 52 L6 62 L20 66 L14 80 L40 72Z M76 52 L112 30 L104 52 L114 62 L100 66 L106 80 L80 72Z" fill="#3ad6c0"/><path d="M88 96 Q108 100 106 80" fill="none" stroke="#f07a1a" stroke-width="8"/><ellipse cx="60" cy="82" rx="28" ry="26" fill="#f07a1a"/><circle cx="60" cy="38" r="20" fill="#f07a1a"/><path d="M42 106 h12 v8 h-14z M66 106 h12 l2 8 h-14z" fill="#f07a1a"/></g><circle cx="60" cy="84" r="15" fill="#f2dca0" stroke="#0a0a0a" stroke-width="2"/><path d="M104 82 Q98 66 106 58 Q112 68 110 78Z" fill="#ffd23a" stroke="#ff7a1a" stroke-width="2"/><circle cx="53" cy="36" r="4.5" fill="#fff"/><circle cx="67" cy="36" r="4.5" fill="#fff"/><circle cx="54" cy="37" r="2.2"/><circle cx="68" cy="37" r="2.2"/><path d="M52 46 Q60 52 68 46" stroke="#0a0a0a" stroke-width="2.5" fill="none"/>'};
   return `<svg viewBox="0 0 120 120">${S[id]}</svg>`;}
 function renderPetShop(){$('pCoins').textContent='☠ '+coins;
   $('pList').innerHTML=PET_ORDER.map(id=>{const p=PETS[id],own=petOwn.includes(id),eq=petEq===id;
@@ -3999,10 +4064,10 @@ function renderPetShop(){$('pCoins').textContent='☠ '+coins;
   $('pDet').innerHTML=`<h3>${p.name}</h3><span class="rtxt rar-${p.rar}">${RARN[p.rar]}</span><span class="pw">★ ${p.pow}</span><p>${p.desc}</p><button id="pBuy">${eq?'DEIXAR EM CASA':own?'LEVAR COMIGO':'COMPRAR · ☠ '+p.price}</button>`;
   $('pBuy').onclick=()=>{if(eq)petEq=null;else if(own)petEq=id;else if(coins>=p.price){coins-=p.price;updCoins();petOwn.push(id);petEq=id;SFX.coin();}
     else{$('pBuy').textContent=`FALTAM ☠ ${p.price-coins}`;return;}applyPet();writeSave(false);renderPetShop();};
-  if(ptShown!==id){if(ptHold.children[0])ptHold.remove(ptHold.children[0]);const m=petModel(id);m.scale.setScalar(id==='panda'?1.3:1.7);m.position.y=0.35;ptHold.add(m);ptShown=id;}}
+  if(ptShown!==id){if(ptHold.children[0])ptHold.remove(ptHold.children[0]);const m=petModel(id);m.scale.setScalar({panda:1.25,jaguar:1.45,dragon:1.15}[id]||1.7);m.position.y=0.35;ptHold.add(m);ptShown=id;}}
 $('pList').addEventListener('click',e=>{const b=e.target.closest('.pcard');if(!b)return;selP=b.dataset.id;renderPetShop();});
 function ptSize(){if(!ptR)return;const c=$('ptCanvas'),w=c.clientWidth||300,h=c.clientHeight||300;ptR.setSize(w,h,false);ptCam.aspect=w/h;ptCam.updateProjectionMatrix();}
-function ptLoop(){if(!petOpen)return;if(!ptDrag)ptSpin+=0.008;ptHold.rotation.y=ptSpin;const m=ptHold.children[0];if(m)petAnim(m,ptShown,false,performance.now()/1000);ptR.render(ptScene,ptCam);requestAnimationFrame(ptLoop);}
+function ptLoop(){if(!petOpen)return;if(!ptDrag)ptSpin+=0.008;ptHold.rotation.y=ptSpin;const m=ptHold.children[0];if(m)petAnim(m,'idle',performance.now()/1000);ptR.render(ptScene,ptCam);requestAnimationFrame(ptLoop);}
 function openPetShop(){SFX.shop();unlockSilent();shopOpen=true;petOpen=true;selP=petEq;
   if(!ptR){ptR=new THREE.WebGLRenderer({canvas:$('ptCanvas'),alpha:true,antialias:true});ptR.setPixelRatio(Math.min(devicePixelRatio,2));ptScene=new THREE.Scene();ptCam=new THREE.PerspectiveCamera(30,1,0.1,50);
     ptCam.position.set(0,2.4,6.8);ptCam.lookAt(0,1.05,0);ptScene.add(new THREE.HemisphereLight(0xeafff2,0x0a2014,0.95));const d=new THREE.DirectionalLight(0xffffff,0.9);d.position.set(3,6,5);ptScene.add(d);
