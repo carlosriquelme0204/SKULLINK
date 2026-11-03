@@ -871,6 +871,7 @@
     <h3>UPDATE</h3>
     <div class="updList">
       <section><h4>🆕 ESTA VERSÃO</h4><ul>
+        <li><b>Corda do Céu:</b> agora o céu tem teto, uma camada de nuvens neon onde o gancho engata (nada de subir pra sempre). A corda mantém a sua velocidade em vez de acelerar a cada clique, e soltar embaixo do balanço, indo rápido pra frente, dá um impulso extra: <b>SOLTURA PERFEITA!</b></li>
         <li><b>Pets:</b> a Arara não fica mais com peças soltas, e o Gato ganhou visual preto e branco (focinho, peito e patinhas brancas, nariz vermelho).</li>
         <li><b>Pets maiores:</b> Panda, Onça Pintada e Charigarto cresceram, e as pintas da onça agora ficam coladas no corpo.</li>
         <li><b>Pet novo: CHARIGARTO</b> (lendário): dragãozinho laranja pançudo de asas enormes e rabo de fogo, que cospe fogo nos bandidos.</li>
@@ -4149,12 +4150,17 @@ const ROPEM=new THREE.MeshStandardMaterial({color:0x1a1a1e,emissive:0x2a0a10,rou
 const ropeMesh=new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.045,1,6),ROPEM);ropeMesh.visible=false;scene.add(ropeMesh);
 const ropeHook=new THREE.Group();scene.add(ropeHook);ropeHook.visible=false;
 {const h=new THREE.Mesh(new THREE.TorusGeometry(0.35,0.08,6,12),new THREE.MeshBasicMaterial({color:0xefece4}));ropeHook.add(h);halo(ropeHook,0,0,0,2.2,2.2,0xc4161c,0.6);}
+// teto do céu: camada de nuvens neon acima do prédio mais alto; o gancho engata nela e ninguém passa dela
+const SKY_CEIL=80;const cloudLayer=new THREE.Group();scene.add(cloudLayer);
+{const CM=[0x7a3aa8,0xa8408a,0x3a4aa8].map(c=>new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:0.55,fog:false,depthWrite:false}));const g=new THREE.IcosahedronGeometry(1,1);let sd=5;const rn=()=>{sd=(sd*16807)%2147483647;return sd/2147483647;};
+  const tile=[];for(let i=0;i<4;i++)tile.push([rn()*40,rn()*40,6+rn()*8,rn()*3|0]);
+  for(let tx=-3;tx<=3;tx++)for(let tz=-3;tz<=3;tz++)for(const [x,z,r2,c] of tile){const m=new THREE.Mesh(g,CM[c]);m.position.set(tx*40+x,SKY_CEIL+rn()*2,tz*40+z);m.scale.set(r2,r2*0.28,r2*0.8);m.renderOrder=-1;cloudLayer.add(m);}}
 function tryRope(){const P=player.position;
   if(!skills.rope||riding||shopOpen||ropeCD>0||playerDead)return false;
   if(!((state==='normal'&&!onGround)||state==='wallrun'||state==='cling'))return false;
   const fa=(state==='normal'&&curSpeed>2)?player.rotation.y:yaw+Math.PI,fx=Math.sin(fa),fz=Math.cos(fa);
-  ropeA.set(P.x+fx*9,P.y+22,P.z+fz*9);ropeL=ropeA.distanceTo(P);if(ropeA.y-ropeL<1.3)ropeL=ropeA.y-1.3;
-  const hs=state==='normal'?Math.max(curSpeed,10):16;rsv.set(fx*hs+pushX,Math.max(vel.y,-6),fz*hs+pushZ);
+  ropeA.set(P.x+fx*9,Math.min(P.y+22,SKY_CEIL),P.z+fz*9);ropeL=ropeA.distanceTo(P);if(ropeA.y-ropeL<1.3)ropeL=ropeA.y-1.3;
+  const cur=Math.hypot(fx*curSpeed+pushX,fz*curSpeed+pushZ),hs=Math.min(Math.max(cur,state==='normal'?10:16),34);rsv.set(fx*hs,Math.max(vel.y,-6),fz*hs);
   state='swing';ropeT=0;pushX=pushZ=0;curSpeed=0;flip=0;dance=0;wallCD=0.4;SFX.whip();shake=Math.max(shake,0.12);return true;}
 function swingUpdate(P,mvx,mvz,moving){ropeT+=dt;
   rsv.y-=24*dt;if(moving){rsv.x+=mvx*12*dt;rsv.z+=mvz*12*dt;}
@@ -4165,9 +4171,14 @@ function swingUpdate(P,mvx,mvz,moving){ropeT+=dt;
   const before=P.x+P.z;collide(P,nearSolids(P.x,P.z));if(Math.abs(P.x+P.z-before)>0.001){rsv.x*=0.5;rsv.z*=0.5;}
   if(hsp>2)turnTo(Math.atan2(rsv.x,rsv.z),10);
   if(!ropeHold&&ropeT>0.15)ropeRelease();}
-function ropeRelease(){state='normal';onGround=false;vel.y=Math.max(rsv.y,0)+6;pushX=rsv.x*1.1;pushZ=rsv.z*1.1;curSpeed=0;
+function ropeRelease(){state='normal';onGround=false;vel.y=Math.max(rsv.y,0)+6;
+  const P=player.position,low=(ropeA.y-P.y)/ropeL>0.9,hs=Math.hypot(rsv.x,rsv.z),perfect=low&&hs>14&&ropeT>0.5;
+  const k=perfect?Math.min(1.15,40/Math.max(hs,1)):1;pushX=rsv.x*k;pushZ=rsv.z*k;curSpeed=0;
+  if(perfect){vel.y+=3;comboTxt('SOLTURA PERFEITA!');ringFx(P.x,P.y+1,P.z,3,DM.ring,0.3);spark(P.x,P.y+1.5,P.z,8,0xffd23a,6);}
   if(Math.hypot(rsv.x,rsv.z)>2)player.rotation.y=Math.atan2(rsv.x,rsv.z);flip=1;flipA=0;ropeCD=0.15;airJumps=Math.max(airJumps,1);SFX.whoosh(true);puff(4,1);}
-function ropeTick(){ropeCD=Math.max(0,ropeCD-dt);if(ropeReqT>0){ropeReqT-=dt;if(tryRope())ropeReqT=0;}
+function ropeTick(){ropeCD=Math.max(0,ropeCD-dt);
+  const P=player.position;cloudLayer.position.set(Math.round(P.x/40)*40,0,Math.round(P.z/40)*40);
+  if(P.y>SKY_CEIL-4){P.y=SKY_CEIL-4;if(vel.y>0)vel.y=0;if(rsv.y>0)rsv.y=0;if(Math.random()<dt*20)puff(1,1);}if(ropeReqT>0){ropeReqT-=dt;if(tryRope())ropeReqT=0;}
   document.body.classList.toggle('hasRope',!!skills.rope);
   if(state==='swing'){arms[1].wr.getWorldPosition(_rh);const k=Math.min(1,ropeT/0.12);_rd.copy(_rh).lerp(ropeA,k);
     const L=_rh.distanceTo(_rd);ropeMesh.visible=true;ropeMesh.position.copy(_rh).add(_rd).multiplyScalar(0.5);ropeMesh.scale.set(1,L,1);
