@@ -2,7 +2,7 @@
 
 Jogo de ação 3D em terceira pessoa (Three.js r128 via CDN, tudo num HTML só) para navegador (PC e celular) e app Android (PWA).
 Uma caveira punk patrulha uma cidade neon infinita: parkour (parede, pulo duplo, Corda do Céu), alertas de crime no celular,
-briga com 7 armas e uma ult de 4 barras, lojas (Arsenal do Caolho, Brechó da Rubi, Salão da Kika, Cantina do Bigode),
+briga com 7 armas e uma ult de 4 barras, lojas (Arsenal do Caolho, Brechó da Rubi, Salão da Kika, Cantina do Bigode, Pet Shop da Nina),
 chefões Marreta e Vó Nocturna (secreta), dublagem gerada no código e save automático.
 Visual: low-poly facetado, preto/osso/vermelho com neons; UI de fanzine (contorno grosso, sombra vermelha deslocada, estêncil + máquina de escrever).
 O dono do projeto fala português: textos do jogo, comentários e respostas em pt-BR.
