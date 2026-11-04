@@ -2511,7 +2511,8 @@ function say(obj,text,dur=2.6,yOff=1.15){speak(text,obj);const el=document.creat
 function banner(text){const e=$('evTitle');e.textContent=text;e.classList.remove('go');void e.offsetWidth;e.classList.add('go');}
 function objective(text){$('evObj').textContent=text||'';$('evObj').style.display=text?'block':'none';}
 function addCoins(n){if(n>0)SFX.coin();coins=Math.max(0,coins+n);updCoins();const e=$('coinPop');e.textContent=(n>0?'+':'')+n+' ☠';e.classList.remove('go');void e.offsetWidth;e.classList.add('go');writeSave(true);}
-function updCoins(){$('coins').textContent='☠ '+coins;}
+function updCoins(){@@[dev]coins=999999; // DEV: dinheiro infinito
+  @@[end]$('coins').textContent='☠ '+@@[dev]'∞'@@[else]coins@@[end];}
 function spawnEvent(){if(riding)return false;
   const P=player.position;let types=['purse','cat','fight','store','bike','vandal','trespass','food','cars','neighbors','kid'].filter(x=>x!==evLast);types.sort(()=>Math.random()-0.5);
   if(evLast!=='bank'&&Math.random()<0.22)types.unshift('bank');
@@ -2956,7 +2957,7 @@ document.getElementById('devMisGrid').addEventListener('click',e=>{const b=e.tar
 setTimeout(devRenderMis,0);
 addEventListener('keydown',e=>{if(e.shiftKey&&e.code==='Digit8'&&started&&!e.repeat){if(ev&&ev.type==='cat'&&ev.stage==='active'){if(!ev.carry){ev.carry=true;chest.add(ev.cat.m.g);ev.cat.m.g.position.set(0,-0.15,0.62);}secretUpdate(player.position);}else say(head,'Espere a missão do gatinho começar!',2,1.9);}});
 addEventListener('keydown',e=>{if(e.shiftKey&&e.code==='Digit9'&&started&&!e.repeat){clearEvent();const r=Math.random;Math.random=()=>0.01;try{spawnEvent();}finally{Math.random=r;}}});
-function devUnlock(){petOwn=PET_ORDER.slice();wardOwn=['def','o1','o2','o3','o4','o5','o6','o7','o8','o9','o10'];hairOwn=HAIR_ORDER.slice();skills.lv={hp:6,res:6,str:6,jump:3};skills.slam=skills.dash=skills.tele=skills.rope=true;skills.st={fire:true,water:true,wind:true,earth:true};if(!skills.style)skills.style='fire';php=maxHp();updLv();}
+function devUnlock(){coins=999999;petOwn=PET_ORDER.slice();wardOwn=['def','o1','o2','o3','o4','o5','o6','o7','o8','o9','o10'];hairOwn=HAIR_ORDER.slice();skills.lv={hp:6,res:6,str:6,jump:3};skills.slam=skills.dash=skills.tele=skills.rope=true;skills.st={fire:true,water:true,wind:true,earth:true};if(!skills.style)skills.style='fire';php=maxHp();updLv();}
 owned=WORDER.slice();
 addEventListener('keydown',e=>{if(!started||shopOpen||e.repeat||!e.shiftKey)return;const m={Digit1:'gaunt',Digit2:'shuri',Digit3:'katana',Digit4:'scythe',Digit0:null,
   Digit5:'chaos',Digit6:'stand',Digit7:'mono',Numpad1:'gaunt',Numpad2:'shuri',Numpad3:'katana',Numpad4:'scythe',Numpad0:null};if(!(e.code in m))return;
