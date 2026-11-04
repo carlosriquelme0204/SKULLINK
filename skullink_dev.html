@@ -870,6 +870,7 @@
     <h3>UPDATE</h3>
     <div class="updList">
       <section><h4>🆕 ESTA VERSÃO</h4><ul>
+        <li><b>Otimização:</b> o jogo ajusta a resolução sozinho quando o FPS cai (e volta quando sobra), os brilhos de neon longe da câmera param de pesar, e as roupas, cabelos e armas guardados da caveira não gastam mais processamento a cada quadro.</li>
         <li><b>Móveis interativos no apê:</b> chegue perto e aperte <b>E</b> (ou o botão azul): 🛌 deitar na cama ou no colchão (recupera vida dormindo), 📖 ler um livro na estante e 🍳 cozinhar no fogão (o prato pronto cura). Ande pra levantar. A casa agora gira com Z/X ou arrastando.</li>
         <li><b>Construir no apê:</b> agora você marca primeiro (blocos novos ficam transparentes, os da 🧽 ficam vermelhos) e só paga quando aperta ✔; o ✕ desfaz tudo. A 🧽 acerta o bloco em que você toca, mesmo clicando no topo de uma parede alta.</li>
         <li><b>Construir no apê:</b> no ✏️ › 🧱 escolha parede inteira (☠ 20 o bloco) ou meia parede (☠ 10) e toque ou arraste no chão pra levantar; 🧽 derruba e devolve metade. As cores de parede agora ficam no 🖼️ junto com os papéis, e os blocos usam o mesmo acabamento das paredes.</li>
@@ -1588,9 +1589,10 @@ function genChunk(cx,cz){
     im.instanceColor.needsUpdate=true;gp.add(im);
   }
   mergeStatic(gp);
+  const spr=[];gp.traverse(o=>{if(o.isSprite)spr.push(o);});
   gp.traverse(o=>{if((o.isMesh||o.isInstancedMesh)&&!o.userData.keep)seeThrough(o.material);});
   scene.add(gp);
-  chunks.set(cx+','+cz,{gp,sol,cx,cz,dms,shop:t==='shop'?{x:lx,z:lz+6.5+1.6,kind:'arms'}:t==='cloth'?{x:lx,z:lz+6.5+1.6,kind:'cloth'}:null,resto:t==='resto'?{x:lx,z:lz+6.5+1.6}:null,salon:t==='salon'?{x:lx+3.8,z:lz+6.5+1.6}:null,pet:t==='pet'?{x:lx+3.8,z:lz+6.5+1.6}:null,apt:t==='apt'?{x:lx,z:lz+6.5+1.6}:null,furn:t==='furn'?{x:lx+3.8,z:lz+6.5+1.6}:null,bank:t==='bank'?_bank:null,conv:t==='conv'?_conv:null,lair:t==='lair'?_lair:null,house:t==='house'?_house:null,market:t==='market'?_market:null});
+  chunks.set(cx+','+cz,{gp,sol,cx,cz,dms,spr,sprOn:true,shop:t==='shop'?{x:lx,z:lz+6.5+1.6,kind:'arms'}:t==='cloth'?{x:lx,z:lz+6.5+1.6,kind:'cloth'}:null,resto:t==='resto'?{x:lx,z:lz+6.5+1.6}:null,salon:t==='salon'?{x:lx+3.8,z:lz+6.5+1.6}:null,pet:t==='pet'?{x:lx+3.8,z:lz+6.5+1.6}:null,apt:t==='apt'?{x:lx,z:lz+6.5+1.6}:null,furn:t==='furn'?{x:lx+3.8,z:lz+6.5+1.6}:null,bank:t==='bank'?_bank:null,conv:t==='conv'?_conv:null,lair:t==='lair'?_lair:null,house:t==='house'?_house:null,market:t==='market'?_market:null});
 }
 function freeChunk(k,c){scene.remove(c.gp);c.dms.forEach(d=>scene.remove(d.g));c.gp.traverse(o=>{if(o.isInstancedMesh)o.dispose();else if(o.userData.merged)o.geometry.dispose();});chunks.delete(k);}
 function updateChunks(px,pz,budget){
@@ -4179,6 +4181,18 @@ $('pClose').addEventListener('click',closePetShop);addEventListener('keydown',e=
 function drawPetShop(tr,W2){for(const c of chunks.values())if(c.pet){const p=tr(c.pet.x,c.pet.z);if(p[0]<0||p[0]>W2||p[1]<0||p[1]>W2)continue;const r=W2*0.05;
   mctx.fillStyle='#2ad06a';mctx.strokeStyle='#0a0a0a';mctx.lineWidth=2;mctx.beginPath();mctx.arc(p[0],p[1],r,0,7);mctx.fill();mctx.stroke();
   mctx.fillStyle='#0a0a0a';for(const [ox,oy,rr] of[[0,0.25,0.42],[-0.42,-0.2,0.2],[-0.14,-0.48,0.2],[0.14,-0.48,0.2],[0.42,-0.2,0.2]]){mctx.beginPath();mctx.arc(p[0]+ox*r,p[1]+oy*r,rr*r,0,7);mctx.fill();}}}
+// ================= DESEMPENHO =================
+// brilhos neon (sprites) longe da câmera quase somem na neblina, mas cada um custa uma chamada de desenho
+function cullSprites(){const cp=camera.position,lim=scene.fog?scene.fog.far*0.62:70;
+  for(const c of chunks.values()){const x0=c.cx*CH,z0=c.cz*CH,d=Math.hypot(Math.max(x0-cp.x,0,cp.x-x0-CH),Math.max(z0-cp.z,0,cp.z-z0-CH)),on=d<lim;
+    if(on!==c.sprOn){c.sprOn=on;c.spr.forEach(o=>o.visible=on);}}}
+// resolução automática: baixa um pouco quando o FPS cai, volta quando sobra
+const PR_MAX=Math.min(devicePixelRatio,IS_MOBILE?1.25:1.5),PR_MIN=IS_MOBILE?0.6:0.75;let prCur=PR_MAX,prT0=performance.now(),prN=0;
+function dynRes(){prN++;const now=performance.now(),el=now-prT0;if(el<2000)return;const fps=prN*1000/el;prT0=now;prN=0;
+  let n=prCur;if(fps<40)n=Math.max(PR_MIN,prCur-0.15);else if(fps>56)n=Math.min(PR_MAX,prCur+0.1);if(Math.abs(n-prCur)>0.01){prCur=n;renderer.setPixelRatio(prCur);}}
+// a caveira carrega todas as roupas, cabelos e armas; as escondidas não precisam ter a posição recalculada todo quadro
+function skipHiddenUpdate(force){if(!this.visible){this.matrixWorldNeedsUpdate=true;return;}THREE.Object3D.prototype.updateMatrixWorld.call(this,force);}
+player.traverse(o=>{if(o!==player)o.updateMatrixWorld=skipHiddenUpdate;});
 // ================= ESCONDERIJO (APARTAMENTO) =================
 // homeMode: 'off' na cidade · 'cut' na cutscene do Caveiráxi · 'in' dentro do apartamento
 let homePend={add:[],del:[]},homeTool=null,homeMode='off',homeEdit=false,homeYaw=0.7,homeSel=null,homeCat=null,homeT=0,homeTo=null,homeEntry=null,homeDrag=null,nearApt=null;
@@ -4670,6 +4684,7 @@ function loop(){
   lockUI();
   if(paused||document.body.classList.contains('needclick')){clock.getDelta();if(homeMode==='in')renderer.render(homeScene,homeCam);else renderer.render(scene,camera);requestAnimationFrame(loop);return;}
   dt=Math.min(clock.getDelta(),0.05);t+=dt;nsCache.clear();frameN++;
+  dynRes();
   if(homeMode!=='off'&&started){homeLoop();requestAnimationFrame(loop);return;}
   if(hitStop>0){hitStop-=dt;dt*=0.06;}
   if(!started){yaw+=dt*0.2;for(const k in keys)keys[k]=false;joy.x=joy.y=0;jumpReq=false;}
@@ -4792,7 +4807,7 @@ function loop(){
   if(state==='ult')ultCamera(cp);else if(state==='bcine')bossCamera();else camera.lookAt(cp.x+shx,cp.y+2.3,cp.z+shz);
   if(started){stats.time+=dt;const ddx=Math.hypot(cp.x-lastX,cp.z-lastZ);if(ddx<5)stats.dist+=ddx;lastX=cp.x;lastZ=cp.z;
     stats.maxH=Math.max(stats.maxH,cp.y);if(state==='wallrun'&&prevState!=='wallrun')stats.walls++;if(flip&&!prevFlip)stats.flips++;prevState=state;prevFlip=flip;}
-  updateDummies();eventsUpdate();phoneUpdate();crossUpdate();chaosUpdate();standUpdate();monoUpdate();fxUpdate();rocksUpdate();shopUpdate();pedsUpdate();trafficUpdate();if(frameN%3===0)drawMinimap();
+  updateDummies();eventsUpdate();phoneUpdate();crossUpdate();chaosUpdate();standUpdate();monoUpdate();fxUpdate();rocksUpdate();shopUpdate();pedsUpdate();trafficUpdate();if(frameN%3===0)drawMinimap();if(frameN%10===0)cullSprites();
   drawFx(sp);
   renderer.render(scene,camera);
   requestAnimationFrame(loop);
