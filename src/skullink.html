@@ -893,7 +893,7 @@
     <h3>UPDATE</h3>
     <div class="updList">
       <section><h4>🆕 ESTA VERSÃO</h4><ul>
-        <li><b>Mobília Maldita:</b> preço fixo por raridade em tudo (móveis, tintas, papéis e pisos): comum ☠ 100, raro ☠ 300, épico ☠ 750, lendário ☠ 800.</li>
+        <li><b>Mobília Maldita:</b> preço fixo por raridade em tudo (móveis, tintas, papéis e pisos): comum ☠ 100, raro ☠ 300, épico ☠ 500, lendário ☠ 800.</li>
         <li><b>Arsenal:</b> as Esferas de Giro ficaram mais fortes (+46 de dano, ×3,0, +55% moedas) e agora custam ☠ 3700, acima do Stand. As armas da loja e do inventário agora aparecem em ordem de preço.</li>
         <li><b>Arma nova: ESFERAS DE GIRO</b> (Arsenal do Caolho): duas esferas de metal verde movidas a rotação. Fraco joga uma (alternando as mãos), ela gruda no inimigo girando e soltando raios dourados e volta pra mão. Forte joga as duas e o inimigo fica girando de braços pra cima. Ult <b>ROTAÇÃO DOURADA</b>: a esfera crava no meio do rosto do inimigo, a câmera fecha e o rosto se deforma até o golpe final.</li>
         <li><b>Otimização:</b> o jogo ajusta a resolução sozinho quando o FPS cai (e volta quando sobra), os brilhos de neon longe da câmera param de pesar, e as roupas, cabelos e armas guardados da caveira não gastam mais processamento a cada quadro.</li>
@@ -4335,7 +4335,7 @@ const HROW={colch:['comum',80,'COLCHÃO'],cama:['raro',250,'CAMA'],armario:['rar
   geladeira:['raro',300,'GELADEIRA'],fogao:['raro',250,'FOGÃO'],balcao:['comum',150,'BALCÃO'],mesa:['raro',250,'MESA COM CADEIRAS'],
   tv:['epico',450,'TV'],arcade:['lendario',1000,'FLIPERAMA'],som:['raro',250,'CAIXA DE SOM'],pc:['epico',600,'PC GAMER'],
   lamp:['comum',80,'LUMINÁRIA'],planta:['comum',60,'PLANTA'],neon:['lendario',900,'NEON DE CAVEIRA'],quadro:['raro',200,'QUADRO'],skate:['raro',200,'SKATE'],estante:['epico',450,'ESTANTE']};
-const RPRICE={comum:100,raro:300,epico:750,lendario:800}; // preço fixo por raridade (móveis e estilos)
+const RPRICE={comum:100,raro:300,epico:500,lendario:800}; // preço fixo por raridade (móveis e estilos)
 for(const k in HROW){const [rar,,n]=HROW[k];Object.assign(HITEMS[k],{rar,p:RPRICE[rar],n});}
 const PAINTS=[0x3a2a5a,0xe9e2d8,0x1a1a1e,0xc4161c,0x2ad06a,0x22e6ff,0xff4fb8,0xffd23a,0x8a4aff];
 const WPS=['—','listras','xadrez','bolinhas','tijolo','grade neon','caveiras'],FLOORS=['madeira','xadrez','carpete','concreto','azulejo','neon'];
