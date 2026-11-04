@@ -872,6 +872,7 @@
     <h3>UPDATE</h3>
     <div class="updList">
       <section><h4>🆕 ESTA VERSÃO</h4><ul>
+        <li><b>Esconderijo:</b> agora dá pra entrar no Edifício Caveira só andando pela porta (o E também funciona), e o editor avisa quando faltam moedas ou espaço pro móvel.</li>
         <li><b>Esconderijo:</b> a tela não fica mais preta ao sair do prédio, e os móveis novos aparecem num espaço livre (antes nasciam todos um dentro do outro). Arrastar não deixa mais um móvel entrar no outro.</li>
         <li><b>ESCONDERIJO!</b> Aperte <b>H</b> (ou 🏠 no celular) e chame um Caveiráxi pra casa, ou entre pelo <b>Edifício Caveira</b> (casinha amarela no mapa). Seu apê começa com um colchão e uma lâmpada: no ✏️ você compra móveis de quarto, sala, banheiro, cozinha, eletrônicos e decoração, troca parede, papel de parede e piso, e aumenta o cômodo. Arraste a tela pra girar a casa e saia pela porta.</li>
         <li><b>Corda do Céu:</b> agora o céu tem teto, uma camada de nuvens neon onde o gancho engata (nada de subir pra sempre). A corda mantém a sua velocidade em vez de acelerar a cada clique, e soltar embaixo do balanço, indo rápido pra frente, dá um impulso extra: <b>SOLTURA PERFEITA!</b></li>
@@ -4274,19 +4275,20 @@ const hCSS=document.createElement('style');hCSS.textContent=`#homeFade{position:
   #bHome{width:46px;height:46px;border-radius:10px;right:calc(14px + env(safe-area-inset-right,0px));top:calc(160px + env(safe-area-inset-top,0px));bottom:auto;font-size:20px}body.mobile #bHome{width:38px;height:38px;font-size:17px;border-width:3px;top:calc(150px + env(safe-area-inset-top,0px))}
   body.inshop #bHome{visibility:hidden}`;document.head.appendChild(hCSS);
 const hFade=v=>{$('homeFade').style.opacity=v;};
-function hRender(){$('hCoins').textContent='☠ '+coins;
+function hRender(){if(t>hMsgT)$('hCoins').textContent='☠ '+coins;
   document.querySelectorAll('#hCats button').forEach(b=>b.classList.toggle('on',b.dataset.c===homeCat));const box=$('hItems');
   if(!homeCat){box.innerHTML='';return;}
   if(homeCat==='parede')box.innerHTML=PAINTS.map((c,i)=>`<button class="sw${HOME.paint===i&&!HOME.wp?' on':''}" data-paint="${i}" style="background:#${c.toString(16).padStart(6,'0')}"><small style="color:${i===2||i===0?'#fff':'#000'}">30</small></button>`).join('');
   else if(homeCat==='papel'||homeCat==='piso'){const isW=homeCat==='papel',L=isW?WPS:FLOORS;box.innerHTML=L.map((n,i)=>`<button class="sw${(isW?HOME.wp:HOME.floor)===i?' on':''}" data-${isW?'wp':'fl'}="${i}" style="background:${i||!isW?`url(${hmTex(isW?'wp':'fl',i).image.toDataURL()}) center/24px`:'#3a2a5a'}"><small style="background:#efece4">${i||!isW?80:'✕'}</small></button>`).join('');}
   else box.innerHTML=Object.entries(HITEMS).filter(([,D])=>D.c===homeCat).map(([k,D])=>`<button data-it="${k}">${D.ic}<small>☠ ${D.p}</small></button>`).join('');}
-function hPay(v){if(coins<v){$('hCoins').animate([{transform:'scale(1.3)',background:'#c4161c'},{transform:'scale(1)'}],400);SFX.fail&&SFX.fail();return false;}coins-=v;updCoins();SFX.coin();return true;}
+let hMsgT=0;function hMsg(tx){const e=$('hCoins');e.textContent=tx;hMsgT=t+1.6;e.animate([{transform:'scale(1.35)',background:'#c4161c',color:'#fff'},{transform:'scale(1)'}],600);}
+function hPay(v){if(coins<v){hMsg('FALTAM ☠ '+(v-coins));SFX.fail&&SFX.fail();return false;}coins-=v;updCoins();SFX.coin();return true;}
 $('hCats').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;homeCat=homeCat===b.dataset.c?null:b.dataset.c;SFX.ui&&SFX.ui();hRender();});
 $('hItems').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
   if(d.paint!==undefined){const i=+d.paint;if((HOME.paint!==i||HOME.wp)&&hPay(30)){HOME.paint=i;HOME.wp=0;buildRoom();}}
   else if(d.wp!==undefined){const i=+d.wp;if(HOME.wp!==i&&(i===0||hPay(80))){HOME.wp=i;buildRoom();}}
   else if(d.fl!==undefined){const i=+d.fl;if(HOME.floor!==i&&hPay(80)){HOME.floor=i;buildRoom();}}
-  else if(d.it){const D=HITEMS[d.it];if(!hPay(D.p))return;const it={k:d.it,x:0,z:0,r:0};HOME.items.push(it);if(!freeSpot(it)){HOME.items.pop();coins+=D.p;updCoins();$('hCoins').animate([{transform:'scale(1.3)',background:'#c4161c'},{transform:'scale(1)'}],400);return;}buildFurn();homeSelect(it);}
+  else if(d.it){const D=HITEMS[d.it];if(!hPay(D.p))return;const it={k:d.it,x:0,z:0,r:0};HOME.items.push(it);if(!freeSpot(it)){HOME.items.pop();coins+=D.p;updCoins();hMsg('SEM ESPAÇO · AUMENTE O CÔMODO');return;}buildFurn();homeSelect(it);}
   writeSave(false);hRender();});
 function homeSelect(it){homeSel=it;document.body.classList.toggle('hsel',!!it);homeFurn.children.forEach(g=>g.traverse(o=>{if(o.isMesh&&o.material.emissive)o.material.emissive.setHex(g.userData.it===it?0x3a3000:0x000000);}));}
 $('hRot').addEventListener('click',()=>{if(!homeSel)return;const o=[homeSel.r,homeSel.x,homeSel.z];homeSel.r=(homeSel.r+1)%4;clampItem(homeSel);if(itemHits(homeSel)&&!freeSpot(homeSel))[homeSel.r,homeSel.x,homeSel.z]=o;buildFurn();homeSelect(homeSel);writeSave(false);});
@@ -4324,7 +4326,7 @@ function enterHome(){homeMode='in';homeEdit=false;homeSel=null;homeCat=null;docu
   state='normal';onGround=true;vel.set(0,0,0);curSpeed=0;atkReq=0;ultReq=false;homeYaw=0.6;unlockSilent();hRender();if(cutCar){scene.remove(cutCar);cutCar=null;}if(cutPhone)cutPhone.visible=false;writeSave(false);}
 function exitHome(){if(homeMode!=='in')return;homeMode='exit';homeT=0;}
 function finishExit(){homeMode='off';homeEdit=false;document.body.classList.remove('inhome','hedit','hsel');scene.add(player);if(petObj){scene.add(petObj);}
-  const E2=homeEntry||aptTarget();player.position.set(E2.x,0,E2.z+1.5);player.rotation.y=0;if(petObj)petObj.position.set(E2.x+1.5,0,E2.z+1);petGY=0;yaw=0;pitch=0.3;
+  const E2=homeEntry||aptTarget();player.position.set(E2.x,0,E2.z+3.2);player.rotation.y=0;if(petObj)petObj.position.set(E2.x+1.5,0,E2.z+1);petGY=0;yaw=0;pitch=0.3;
   updateChunks(E2.x,E2.z,9);atkReq=0;state='normal';onGround=true;lockMouse(true);writeSave(false);
   const f=$('homeFade');f.style.transition='opacity .6s';requestAnimationFrame(()=>{f.style.opacity=0;setTimeout(()=>{f.style.transition='none';},700);});}
 function walkIntoApt(){if(homeMode!=='off')return;homeEntry=nearApt;homeMode='walkin';homeT=0;unlockSilent();document.body.classList.add('homecut');}
@@ -4374,9 +4376,10 @@ function homeRender(){const R=HOME,cx=(R.x1+R.x2)/2,cz=(R.z1+R.z2)/2,sz=Math.max
   const vx=Math.sin(homeYaw),vz=Math.cos(homeYaw);for(const w of homeWalls){const [nx,nz]=w.userData.n;w.visible=nx*vx+nz*vz<0.35;}
   if(homeEdit){const pts={l:[R.x1-1,cz],r:[R.x2+1,cz],b:[cx,R.z1-1]};const v=new THREE.Vector3();
     document.querySelectorAll('.hExp').forEach(b=>{const [x,z]=pts[b.dataset.s];v.set(x,1.5,z).project(homeCam);b.style.left=((v.x+1)/2*innerWidth)+'px';b.style.top=((1-v.y)/2*innerHeight)+'px';b.querySelector('small').textContent='☠ '+expCost();});}
-  $('hCoins').textContent='☠ '+coins;renderer.render(homeScene,homeCam);}
+  if(t>hMsgT)$('hCoins').textContent='☠ '+coins;renderer.render(homeScene,homeCam);}
 // ---- prédio na cidade (aproximar e entrar) ----
-function aptUpdate(){const P=player.position;nearApt=null;if(started&&!shopOpen&&!riding&&state==='normal')for(const c of chunks.values())if(c.apt&&Math.hypot(c.apt.x-P.x,c.apt.z-P.z)<4.5&&P.y<1.5){nearApt=c.apt;break;}}
+function aptUpdate(){const P=player.position;nearApt=null;if(started&&!shopOpen&&!riding&&state==='normal')for(const c of chunks.values())if(c.apt&&Math.hypot(c.apt.x-P.x,c.apt.z-P.z)<4.5&&P.y<1.5){nearApt=c.apt;break;}
+  if(nearApt&&homeMode==='off'&&onGround&&moveAmt>0.5&&Math.cos(player.rotation.y)<-0.6&&Math.abs(P.x-nearApt.x)<1.8&&P.z<nearApt.z+1.3)walkIntoApt();}
 function drawApt(tr,W2){for(const c of chunks.values())if(c.apt){const p=tr(c.apt.x,c.apt.z);if(p[0]<0||p[0]>W2||p[1]<0||p[1]>W2)continue;const r=W2*0.05;
   mctx.fillStyle='#ffd23a';mctx.strokeStyle='#0a0a0a';mctx.lineWidth=2;mctx.beginPath();mctx.arc(p[0],p[1],r,0,7);mctx.fill();mctx.stroke();
   mctx.fillStyle='#0a0a0a';mctx.beginPath();mctx.moveTo(p[0],p[1]-r*0.6);mctx.lineTo(p[0]+r*0.6,p[1]);mctx.lineTo(p[0]-r*0.6,p[1]);mctx.fill();mctx.fillRect(p[0]-r*0.4,p[1],r*0.8,r*0.5);}}
@@ -4466,7 +4469,7 @@ const savedEl=document.createElement('div');savedEl.id='saved';savedEl.textConte
 let savedTO;function flashSaved(){savedEl.classList.add('on');clearTimeout(savedTO);savedTO=setTimeout(()=>savedEl.classList.remove('on'),1200);}
 function writeSave(show){if(!started||state==='climb'||state==='dead')return;const p=player.position;
   try{localStorage.setItem(SAVE_KEY,JSON.stringify({v:1,device:deviceId,info:browserInfo(),when:Date.now(),
-    coins,owned,equipped,statW,ward:{own:wardOwn,eq:outfit},hair:{own:hairOwn,eq:hairEq,c1:hairC1,c2:hairC2},pet:{own:petOwn,eq:petEq},prog:{lvl,xp,pts,skills},pos:homeMode!=='off'&&homeEntry?[homeEntry.x,0,homeEntry.z+1.5]:[p.x,onGround?p.y:0,p.z],home:HOME,rot:player.rotation.y,cam:[yaw,pitch,dist],stats}));if(show)flashSaved();}catch(e){}}
+    coins,owned,equipped,statW,ward:{own:wardOwn,eq:outfit},hair:{own:hairOwn,eq:hairEq,c1:hairC1,c2:hairC2},pet:{own:petOwn,eq:petEq},prog:{lvl,xp,pts,skills},pos:homeMode!=='off'&&homeEntry?[homeEntry.x,0,homeEntry.z+3.2]:[p.x,onGround?p.y:0,p.z],home:HOME,rot:player.rotation.y,cam:[yaw,pitch,dist],stats}));if(show)flashSaved();}catch(e){}}
 setInterval(()=>writeSave(true),15000);
 addEventListener('visibilitychange',()=>{if(document.hidden)writeSave(false);});
 addEventListener('pagehide',()=>writeSave(false));
