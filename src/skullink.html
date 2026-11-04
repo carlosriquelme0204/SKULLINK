@@ -893,6 +893,7 @@
     <h3>UPDATE</h3>
     <div class="updList">
       <section><h4>🆕 ESTA VERSÃO</h4><ul>
+        <li><b>Celular:</b> o botão 🏠 do esconderijo agora fica ao lado do INV e não cobre mais o CORRER.</li>
         <li><b>Mais interações no apê:</b> acender/apagar luminária, criado-mudo e neon; dançar no tapete e na caixa de som; assistir TV (troca de canal); jogar fliperama; digitar no PC; trocar de roupa no guarda-roupa; lanche na geladeira; banho de banheira e de chuveiro; descarga no vaso; escovar os dentes na pia; regar a planta; admirar o quadro; manobra no skate; e café na mesa de centro.</li>
         <li><b>Esconderijo:</b> sente à <b>mesa com cadeiras</b> e coma uma fatia de pizza (cura um pouco). Videogame, planta e neon de caveira agora saem do inventário no chão e podem ser arrastados pra cima de mesas, balcão, criado-mudo, TV ou meia parede; o videogame encaixa sozinho na TV e solta quando você arrasta pra fora.</li>
         <li><b>Móveis novos na Mobília Maldita:</b> Sofá e Poltrona Punk (spikes prateados), Quadro da Anarquia, Videogame (vai em cima da TV ou da mesa), Puff, Aquário e Aquário Neon (com peixinhos), Máquina de Refri e Máquina Neon, Banqueta Alta e o lendário Expositor de Visual (mostra uma roupa sua girando no ar). Todos trocam de cor e têm interação: sentar e curtir, headbang, jogar videogame (a TV acende junto), dar comida aos peixes, tomar um refri (cura um pouco) e girar na banqueta.</li>
@@ -4480,7 +4481,7 @@ const hCSS=document.createElement('style');hCSS.textContent=`#homeFade{position:
   .hExp small{display:block;font:700 10px sans-serif}
   body.inhome #hud,body.inhome #hint,body.inhome #mini,body.inhome #ultBox,body.inhome #hpBox,body.inhome #coins,body.inhome #shopHint,body.inhome #bShop,body.inhome #comboTxt,body.inhome #devTag,body.inhome #cineTxt{display:none!important}
   body.inhome .btn:not(#bPause){display:none!important}body.inhome.hedit #joyBase{display:none!important}body.homecut .btn,body.homecut #hud,body.homecut #hint,body.homecut #shopHint,body.homecut #mini,body.homecut #ultBox,body.homecut #hpBox,body.homecut #coins,body.homecut #devTag,body.homecut #cross,body.inhome #cross{display:none!important}
-  #bHome{width:46px;height:46px;border-radius:10px;right:calc(14px + env(safe-area-inset-right,0px));top:calc(160px + env(safe-area-inset-top,0px));bottom:auto;font-size:20px}body.mobile #bHome{width:38px;height:38px;font-size:17px;border-width:3px;top:calc(150px + env(safe-area-inset-top,0px))}
+  #bHome{width:46px;height:46px;border-radius:10px;right:calc(14px + env(safe-area-inset-right,0px));top:calc(160px + env(safe-area-inset-top,0px));bottom:auto;font-size:20px}body.mobile #bHome{width:38px;height:38px;font-size:17px;border-width:3px;top:calc(106px + env(safe-area-inset-top,0px));right:calc(60px + env(safe-area-inset-right,0px))}
   body.inshop #bHome{visibility:hidden}`;document.head.appendChild(hCSS);
 const hFade=v=>{$('homeFade').style.opacity=v;};
 function hRender(){if(t>hMsgT)$('homeCoins').textContent='☠ '+coins;
