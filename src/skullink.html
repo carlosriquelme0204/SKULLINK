@@ -893,6 +893,7 @@
     <h3>UPDATE</h3>
     <div class="updList">
       <section><h4>🆕 ESTA VERSÃO</h4><ul>
+        <li><b>Arsenal:</b> as Esferas de Giro ficaram mais fortes (+46 de dano, ×3,0, +55% moedas) e agora custam ☠ 3700, acima do Stand. As armas da loja e do inventário agora aparecem em ordem de preço.</li>
         <li><b>Arma nova: ESFERAS DE GIRO</b> (Arsenal do Caolho): duas esferas de metal verde movidas a rotação. Fraco joga uma (alternando as mãos), ela gruda no inimigo girando e soltando raios dourados e volta pra mão. Forte joga as duas e o inimigo fica girando de braços pra cima. Ult <b>ROTAÇÃO DOURADA</b>: a esfera crava no meio do rosto do inimigo, a câmera fecha e o rosto se deforma até o golpe final.</li>
         <li><b>Otimização:</b> o jogo ajusta a resolução sozinho quando o FPS cai (e volta quando sobra), os brilhos de neon longe da câmera param de pesar, e as roupas, cabelos e armas guardados da caveira não gastam mais processamento a cada quadro.</li>
         <li><b>Móveis interativos no apê:</b> chegue perto e aperte <b>E</b> (ou o botão azul): 🛌 deitar na cama ou no colchão (recupera vida dormindo), 📖 ler um livro na estante e 🍳 cozinhar no fogão (o prato pronto cura). Ande pra levantar. A casa agora gira com Z/X ou arrastando.</li>
@@ -2800,10 +2801,11 @@ Object.assign(WPN,{
       <path d="M30 92 Q20 60 50 56 Q84 52 76 30 Q70 14 96 12" fill="none" stroke="#fff6a0" stroke-width="3.5"/>
       <rect x="18" y="88" width="26" height="18" rx="6" fill="#1b1b1e" stroke="#0a0a0a" stroke-width="3"/><circle cx="31" cy="97" r="4" fill="#ffe23a"/><circle cx="96" cy="12" r="5" fill="#fff"/></svg>`}
 });
-WPN.balls={name:'ESFERAS DE GIRO',dmg:38,dm:2.7,price:2600,mult:1.45,desc:'Duas esferas de metal verde movidas a rotação. Fraco: joga uma (alterna as mãos), ela gira no inimigo soltando raios dourados e volta. Forte: joga as duas e o inimigo gira de braços pra cima.',
+WPN.balls={name:'ESFERAS DE GIRO',dmg:46,dm:3.0,price:3700,mult:1.55,desc:'Duas esferas de metal verde movidas a rotação. Fraco: joga uma (alterna as mãos), ela gira no inimigo soltando raios dourados e volta. Forte: joga as duas e o inimigo gira de braços pra cima.',
   svg:`<svg viewBox="0 0 120 120"><g stroke="#0a0a0a" stroke-width="4"><circle cx="40" cy="64" r="26" fill="#2ad06a"/><circle cx="82" cy="56" r="26" fill="#1fa856"/></g><g fill="none" stroke="#ffd23a" stroke-width="4"><ellipse cx="40" cy="64" rx="26" ry="8"/><path d="M40 38 V90"/><ellipse cx="82" cy="56" rx="8" ry="26"/><path d="M56 56 H108"/></g>
     <path d="M60 22 l6 10 l-6 2 l8 12" fill="none" stroke="#ffe23a" stroke-width="3"/><circle cx="32" cy="56" r="5" fill="#fff" opacity=".7"/><circle cx="74" cy="48" r="5" fill="#fff" opacity=".7"/></svg>`};
 WORDER.push('chaos','stand','mono','balls');
+WORDER.sort((a,b)=>WPN[a].price-WPN[b].price); // loja e inventário em ordem de preço
 Object.assign(ULTN,{chaos:['MÍSSIL DO CAOS','sorria pra explosão'],stand:['BARRAGEM FANTASMA','INK! INK! INK! INK!'],mono:['REDEMOINHO NEON','tudo em volta é corte'],balls:['ROTAÇÃO DOURADA','gira até deformar']});
 Object.assign(STY,{
   chaos:{l:{dur:0.2,at:0.25,lunge:0},h:{dur:0.2,at:0.25,lunge:0}},
